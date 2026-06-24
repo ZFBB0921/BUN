@@ -67,7 +67,7 @@ function initFB(){
     firebase.auth().signInAnonymously().then(()=>{
       uid=firebase.auth().currentUser.uid;
       // 实时监听
-      unsub=db.collection('users').doc(uid).onSnapshot(doc=>{
+      unsub=db.collection('app_data').doc('main').onSnapshot(doc=>{
         if(doc.exists){
           const r=doc.data();
           if(!r._ut||!DATA._ut||r._ut>=DATA._ut){
@@ -89,7 +89,7 @@ function sv(){
   DATA._ut=Date.now();
   try{localStorage.setItem(STORAGE_KEY,JSON.stringify(DATA));}catch(e){}
   if(db&&uid){
-    db.collection('users').doc(uid).set({
+    db.collection('app_data').doc('main').set({
       tasks:DATA.tasks,content:DATA.content,drafts:DATA.drafts,ideas:DATA.ideas,_ut:DATA._ut
     },{merge:true}).then(()=>{
       const el=document.getElementById('syncStatus');if(el){el.textContent='● 已同步';el.style.color='var(--success)';}
