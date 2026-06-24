@@ -64,9 +64,9 @@ function initFB(){
     firebase.initializeApp(FB_CONFIG);
     db=firebase.firestore();
     db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
-    firebase.auth().signInAnonymously().then(()=>{initFirestore();}).catch(()=>{initFirestore();});function initFirestore(){
-      uid=firebase.auth().currentUser.uid;
-      // 实时监听
+    // 尝试匿名登录，失败也不影响
+    firebase.auth().signInAnonymously().then(()=>{uid=firebase.auth().currentUser?.uid||'anon';}).catch(()=>{uid='anon';}).finally(()=>{startSync();});
+    function startSync(){
       unsub=db.collection('app_data').doc('main').onSnapshot(doc=>{
         if(doc.exists){
           const r=doc.data();
@@ -79,13 +79,12 @@ function initFB(){
           DATA=defData();DATA._ut=Date.now();sv();
         }
         syncReady=true;
-        const el=document.getElementById('syncStatus');if(el)el.style.display='inline';
+        const el=document.getElementById('syncStatus');try{if(el)el.style.display='inline';}catch(e){}
         refreshUI();
       },err=>{console.error(err);ld();syncReady=true;refreshUI();});
-    }).catch(e=>{console.error(e);ld();syncReady=true;refreshUI();});
+    }
   }catch(e){console.error(e);ld();syncReady=true;refreshUI();}
-}
-function sv(){
+}function sv(){
   DATA._ut=Date.now();
   try{localStorage.setItem(STORAGE_KEY,JSON.stringify(DATA));}catch(e){}
   if(db){
