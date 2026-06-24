@@ -103,7 +103,7 @@ function ld(){try{const r=localStorage.getItem(STORAGE_KEY);if(r){const p=JSON.p
   else if(curView==='tracking')rt();else if(curView==='ideas')ri();
 }
 let DATA={tasks:{},content:[],drafts:[],ideas:[]},curView='dashboard',curAcc=ACCOUNTS[0].id,editCid=null,editIid=null,calY=2026,calM=7,calSel=null,draftSelId=null;
-let ctFilterPlatform='',ctFilterAccount='',ctDateFrom='',ctDateTo='';
+let ctFilterPlatform='',ctFilterAccount='',ctDateFrom='',ctDateTo='',wkFilter='';
 let aiApiKey=localStorage.getItem('deepseek_key')||'';
 let aiStep=0,aiPlatform=null,aiAccount=null,aiTopic='',aiTitles=[],aiSelTitle=-1,aiContents=[],aiSelContent=-1;
 
@@ -365,9 +365,35 @@ function rt(){
     let vw=0,lk=0,cm=0,sv2=0,sh=0;it.forEach(c=>{const d=gd(c);vw+=d.views;lk+=d.likes;cm+=d.comments;sv2+=d.saves;sh+=d.shares;});
     h+='<tr><td style="font-weight:600">'+a.name+'</td><td>'+tl+'</td><td>'+dn+'</td><td><div class="prog-bar" style="height:4px;margin-bottom:2px"><div class="prog-fill" style="width:'+pct+'%;background:'+cl.d+'"></div></div><span class="text-xs">'+pct+'%</span></td><td>'+vw.toLocaleString()+'</td><td>'+lk.toLocaleString()+'</td><td>'+cm.toLocaleString()+'</td><td>'+sv2.toLocaleString()+'</td><td>'+sh.toLocaleString()+'</td></tr>';
   });h+='</tbody></table>';document.getElementById('trackingTable').innerHTML=h;
-  const wks=[{l:'第1周(7.1-7.6)',s:1,e:6},{l:'第2周(7.7-7.13)',s:7,e:13},{l:'第3周(7.14-7.20)',s:14,e:20},{l:'第4周(7.21-7.27)',s:21,e:27},{l:'第5周(7.28-7.31)',s:28,e:31}];
-  let wh='<table><thead><tr><th>周期</th><th>发布数</th><th>总互动</th><th>最佳内容</th><th>本周总结</th></tr></thead><tbody>';
-  wks.forEach(w=>{const it=DATA.content.filter(c=>{const d=parseInt(c.date.split('-')[2]);return d>=w.s&&d<=w.e;});const dn=it.filter(c=>c.status==='done');let intr=0;dn.forEach(c=>{const d=gd(c);intr+=d.likes+d.comments+d.saves+d.shares;});wh+='<tr><td>'+w.l+'</td><td>'+dn.length+'/'+it.length+'</td><td>'+intr.toLocaleString()+'</td><td>-</td><td>-</td></tr>';});
+  // ── Dynamic weekly computation ──
+  const allDates=[...new Set(DATA.content.map(c=>c.date))].sort();
+  const weeks=[];
+  if(allDates.length>0){
+    let ws=new Date(allDates[0]+'T00:00:00');ws.setDate(ws.getDate()-ws.getDay()+1); // Monday of first week
+    const lastDate=new Date(allDates[allDates.length-1]+'T00:00:00');
+    while(ws<=lastDate){
+      const we=new Date(ws);we.setDate(we.getDate()+6);
+      const wsStr=ws.toISOString().split('T')[0];
+      const weStr=we.toISOString().split('T')[0];
+      weeks.push({label:formatWeekLabel(ws,we),start:wsStr,end:weStr});
+      ws.setDate(ws.getDate()+7);
+    }
+  }
+  // Week filter dropdown
+  let wfH='<div class="flex items-center gap-8 mb-12"><span style="font-weight:700;font-size:14px">每周数据</span>';
+  wfH+='<select class="form-sel" style="font-size:12px;padding:4px 10px" onchange="wkFilter=this.value;rt();">';
+  wfH+='<option value="">全部周期</option>';
+  weeks.forEach((w,i)=>{wfH+='<option value="'+w.start+'"'+(wkFilter===w.start?' selected':'')+'>'+w.label+'</option>';});
+  wfH+='</select></div>';
+  
+  let wh=wfH+'<table><thead><tr><th>周期</th><th>发布数</th><th>总互动</th><th>最佳内容</th><th>本周总结</th></tr></thead><tbody>';
+  weeks.forEach(w=>{
+    if(wkFilter&&w.start!==wkFilter)return;
+    const it=DATA.content.filter(c=>c.date>=w.start&&c.date<=w.end);
+    const dn=it.filter(c=>c.status==='done');
+    let intr=0;dn.forEach(c=>{const d=gd(c);intr+=d.likes+d.comments+d.saves+d.shares;});
+    wh+='<tr><td>'+w.label+'</td><td>'+dn.length+'/'+it.length+'</td><td>'+intr.toLocaleString()+'</td><td>-</td><td>-</td></tr>';
+  });
   wh+='</tbody></table>';document.getElementById('weeklyTable').innerHTML=wh;
 }
 
@@ -642,6 +668,10 @@ function saveIdea(){
 function delIdea(id){if(!confirm('确定删除？'))return;DATA.ideas=DATA.ideas.filter(i=>i.id!==id);sv();ri();}
 
 // INIT
+function formatWeekLabel(ws,we){
+  const sm=ws.getMonth()+1,sd=ws.getDate(),em=we.getMonth()+1,ed=we.getDate();
+  return sm+'\u6708'+sd+'\u65e5 - '+em+'\u6708'+ed+'\u65e5';
+}
 function init(){ld();initFB();}
 init();
 // PWA service worker
