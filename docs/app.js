@@ -276,7 +276,7 @@ function rct(){
   items.forEach(it=>{const sc=ST_CLR[it.status]||ST_CLR.pending;
     const dd=it.data||it.data1d||{likes:0,views:0,comments:0,saves:0,shares:0};
     const tdStr='赞'+dd.likes+' 观'+dd.views+' 评'+(dd.comments||0)+' 藏'+(dd.saves||0)+' 享'+(dd.shares||0);
-    h+='<tr><td>'+it.date.slice(5)+'</td><td style="font-weight:500;font-size:12px">'+it.accountName+'</td><td>'+it.platform+'</td><td style="max-width:130px;cursor:pointer;font-size:12px" onclick="openCM(\''+it.id+'\')">'+(it.topic?esc(it.topic).substring(0,28)+(it.topic.length>28?'...':''):'<span style="color:#CCC">点击填写</span>')+'</td><td style="max-width:120px;font-size:12px">'+(it.title?esc(it.title).substring(0,18)+(it.title.length>18?'...':''):'-')+'</td><td><span class="badge" style="background:'+sc.bg+';color:'+sc.tx+'">'+ST_LABEL[it.status]+'</span></td><td style="font-size:11px">'+tdStr+'</td><td style="max-width:150px;font-size:11px">'+(it.link?'<a href="'+esc(it.link)+'" target="_blank" style="color:var(--primary);word-break:break-all">'+esc(it.link).substring(0,28)+'...</a>':'-')+'</td><td><button class="btn btn-sec btn-sm" onclick="openCM(\''+it.id+'\')">编辑</button></td></tr>';
+    h+='<tr><td>'+it.date.slice(5)+'</td><td style="font-weight:500;font-size:12px">'+it.accountName+'</td><td>'+it.platform+'</td><td style="max-width:130px;cursor:pointer;font-size:12px" onclick="openCM(\''+it.id+'\')">'+(it.topic?esc(it.topic).substring(0,28)+(it.topic.length>28?'...':''):'<span style="color:#CCC">点击填写</span>')+'</td><td style="max-width:120px;font-size:12px">'+(it.title?esc(it.title).substring(0,18)+(it.title.length>18?'...':''):'-')+'</td><td><span class="badge" style="background:'+sc.bg+';color:'+sc.tx+'">'+ST_LABEL[it.status]+'</span></td><td style="font-size:11px">'+tdStr+'</td><td style="max-width:150px;font-size:11px">'+(it.link?'<a href="'+esc(it.link)+'" target="_blank" style="color:var(--primary);word-break:break-all">'+esc(it.link).substring(0,28)+'...</a>':'-')+'</td><td style="white-space:nowrap"><button class="btn btn-sec btn-sm" onclick="openCM(\''+it.id+'\')">编辑</button> <button class="btn btn-ghost btn-sm" style="color:#D4A0A0" onclick="deleteContent(\''+it.id+'\')">删除</button></td></tr>';
   });h+='</tbody></table>';document.getElementById('creationTable').innerHTML=h;
 }
 function openCM(id){editCid=id;const it=DATA.content.find(c=>c.id===id);if(!it)return;
@@ -312,6 +312,13 @@ function saveCM(){
 function closeContentModal(){closeCM();}
 
 function saveContent(){saveCM();}
+
+function deleteContent(id){
+  if(!confirm('确定删除这条内容？此操作不可恢复。'))return;
+  DATA.content=DATA.content.filter(c=>c.id!==id);
+  sv();rct();
+}
+
 
 // ── Add new content ──
 function openAddContent(){
