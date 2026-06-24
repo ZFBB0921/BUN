@@ -211,7 +211,15 @@ function toggleContentStatus(cid){
   if(ct.status==='done'){
     const dt=ct.date;if(DATA.tasks[dt]&&DATA.tasks[dt][ct.accountId])DATA.tasks[dt][ct.accountId].checked=true;
   }
-  save();rct();rdt();
+  save();
+  // Instant button feedback
+  const sc2=ST_CLR[ct.status]||ST_CLR.pending;
+  document.querySelectorAll('.date-task-stbtn').forEach(b=>{
+    if(b.getAttribute('onclick')&&b.getAttribute('onclick').indexOf(cid)>=0){
+      b.textContent=ST_LABEL[ct.status];b.style.background=sc2.bg;b.style.color=sc2.tx;
+    }
+  });
+  rct();rdt();
 }
 function rup(){
   const c=document.getElementById('upcomingList');const td7=todayStr();let h='';
