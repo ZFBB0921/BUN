@@ -331,7 +331,7 @@ function updateAddPlatforms(){
   const aid=document.getElementById('addAcc').value;
   if(!aid){document.getElementById('addPlat').innerHTML='<option value="">请先选择账号</option>';return;}
   const acc=ACCOUNTS.find(a=>a.id===aid);
-  document.getElementById('addPlat').innerHTML='<option value="">请选择平台</option>'+acc.platforms.map(p=>'<option value="'+p+'">'+p+'</option>').join('');
+  document.getElementById('addPlat').innerHTML='<option value="">请选择平台</option><option value="__ALL__">全平台 ('+acc.platforms.length+'个)</option>'+acc.platforms.map(p=>'<option value="'+p+'">'+p+'</option>').join('');
 }
 function closeAddContent(){document.getElementById('addContentModal').classList.remove('show');}
 function saveAddContent(){
@@ -340,15 +340,16 @@ function saveAddContent(){
   const date=document.getElementById('addDate').value;
   if(!aid||!plat||!date){alert('请填写完整信息');return;}
   const acc=ACCOUNTS.find(a=>a.id===aid);
-  const newId='c_'+aid+'_'+date+'_'+plat+'_'+Date.now();
-  const day=parseInt(date.split('-')[2]);
-  DATA.content.push({
-    id:newId,accountId:aid,accountName:acc.name,platform:plat,date:date,
-    topic:'',title:'',cover:'待制作',content:'',caption:'',status:'pending',
-    data:{likes:0,views:0,comments:0,saves:0,shares:0},link:'',
-    analysis:'',adjustment:'',avoid:''
+  const platforms = plat==='__ALL__' ? acc.platforms : [plat];
+  platforms.forEach(p=>{
+    const newId='c_'+aid+'_'+date+'_'+p+'_'+Date.now()+Math.random().toString(36).slice(2,6);
+    DATA.content.push({
+      id:newId,accountId:aid,accountName:acc.name,platform:p,date:date,
+      topic:'',title:'',cover:'待制作',content:'',caption:'',status:'pending',
+      data:{likes:0,views:0,comments:0,saves:0,shares:0},link:'',
+      analysis:'',adjustment:'',avoid:''
+    });
   });
-  // Also add task entry if date in range
   const dtKey=date;
   if(!DATA.tasks[dtKey])DATA.tasks[dtKey]={};
   if(!DATA.tasks[dtKey][aid])DATA.tasks[dtKey][aid]={status:'pending',checked:false};
