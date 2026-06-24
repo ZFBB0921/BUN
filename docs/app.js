@@ -258,7 +258,7 @@ function rct(){
   fh+='<span class="filter-sep">至</span>';
   fh+='<input class="form-inp filter-inp" type="date" value="'+ctDateTo+'" onchange="ctDateTo=this.value;rct();" placeholder="结束日期">';
   // Clear button
-  fh+='<button class="btn btn-ghost btn-sm filter-clear" onclick="ctFilterAccount='';ctFilterPlatform='';ctDateFrom='';ctDateTo='';rct();">清除筛选</button>';
+  fh+='<button class="btn btn-ghost btn-sm filter-clear" onclick="ctFilterAccount=\x27\x27;ctFilterPlatform=\x27\x27;ctDateFrom=\x27\x27;ctDateTo=\x27\x27;rct();">清除筛选</button>';
   fh+='</div>';
   document.getElementById('creationTabs').innerHTML=fh;
 
