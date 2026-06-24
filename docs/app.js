@@ -184,7 +184,7 @@ function rdt(){
   const tAccs=Object.entries(dayTs).map(([id,t])=>{const a=ACCOUNTS.find(ac=>ac.id===id);return a?{...a,status:t.status,checked:t.checked}:null;}).filter(Boolean);
   if(!tAccs.length){c.innerHTML='<div class="date-task-empty">当天无发布任务</div>';return;}
   let h='';tAccs.forEach(ac=>{const cl=ACC_CLR[ac.id],sc=ST_CLR[ac.status]||ST_CLR.pending;
-    h+='<div class="date-task-card"><div class="date-task-bar" style="background:'+cl.d+'"></div><div class="date-task-content"><div class="date-task-info"><span class="date-task-acc" style="background:'+cl.l+';color:'+cl.d+'">'+ac.name+'</span><div class="date-task-plats">'+ac.platforms.join(' · ')+'</div></div><button class="date-task-status" style="background:'+sc.bg+';color:'+sc.tx+'" onclick="cycSt(\''+calSel+'\',\''+ac.id+'\')">'+ST_LABEL[ac.status]+' ?</button></div></div>';
+    h+='<div class="date-task-card"><div class="date-task-bar" style="background:'+cl.d+'"></div><div class="date-task-content"><div class="date-task-info"><span class="date-task-acc" style="background:'+cl.l+';color:'+cl.d+'">'+ac.name+'</span><div class="date-task-plats">'+ac.platforms.join(' · ')+'</div>'+'+(()=>{const ct2=DATA.content.filter(cc=>cc.accountId===ac.id&&cc.date===calSel&&cc.title);return ct2.map(cc=>'<span style="font-size:10px;color:var(--muted);display:block">'+cc.platform+': '+esc(cc.title).substring(0,18)+(cc.title.length>18?'...':'')+'</span>').join('');})()+'</div><button class="date-task-status" style="background:'+sc.bg+';color:'+sc.tx+'" onclick="cycSt(\''+calSel+'\',\''+ac.id+'\')">'+ST_LABEL[ac.status]+' ?</button></div></div>';
   });c.innerHTML=h;
 }
 function cycSt(dt,id){if(!DATA.tasks[dt]||!DATA.tasks[dt][id])return;DATA.tasks[dt][id].status=NEXT_ST[DATA.tasks[dt][id].status]||'pending';if(DATA.tasks[dt][id].status==='done')DATA.tasks[dt][id].checked=true;sv();rc();}
@@ -210,7 +210,7 @@ function rct(){
 function openCM(id){editCid=id;const it=DATA.content.find(c=>c.id===id);if(!it)return;
   document.getElementById('contentModalTitle').textContent='编辑 · '+it.accountName+' · '+it.platform+' · '+it.date;
   document.getElementById('contentModalBody').innerHTML=
-    '<div class="form-grp"><div class="flex items-center justify-between mb-4"><label class="form-lbl" style="margin-bottom:0">选题大纲</label><button class="btn btn-sec btn-sm" onclick="showDraftPicker(\'"+it.accountId+"\')">从待发布选择</button></div><textarea class="form-txt" id="edT">'+esc(it.topic)+'</textarea></div>'+
+
     '<div class="form-grp"><label class="form-lbl">标题</label><input class="form-inp" id="edTi" value="'+esc(it.title)+'"></div>'+
     '<div class="form-grp"><label class="form-lbl">封面</label><input class="form-inp" id="edCv" value="'+esc(it.cover)+'"></div>'+
     '<div class="form-grp"><label class="form-lbl">内容脚本</label><textarea class="form-txt" id="edCt" style="min-height:120px">'+esc(it.content)+'</textarea></div>'+
@@ -496,36 +496,17 @@ function applyDraftToEditor(id){
   closeDraftPicker();
 }
 
-// IMAGE UPLOAD FOR IDEAS
-function handleIdeaImage(input){
-  const file=input.files[0];if(!file)return;
-  if(file.size>2*1024*1024){alert('图片不能超过2MB');return;}
-  const reader=new FileReader();
-  reader.onload=function(e){
-    document.getElementById('ideaImgPreview').src=e.target.result;
-    document.getElementById('ideaImgPreview').style.display='block';
-    document.getElementById('ideaImgData').value=e.target.result;
-  };
-  reader.readAsDataURL(file);
-}
-
-function clearIdeaImage(){
-  document.getElementById('ideaImgPreview').src='';
-  document.getElementById('ideaImgPreview').style.display='none';
-  document.getElementById('ideaImgData').value='';
-  document.getElementById('ideaImgInput').value='';
-}// IDEAS
 function ri(){
   document.getElementById('ideaAccount').innerHTML=ACCOUNTS.map(a=>'<option value="'+a.name+'">'+a.name+'</option>').join('');
   document.getElementById('ideaCards').innerHTML=DATA.ideas.map(idea=>
-    '<div class="idea-card">'+(idea.image?'<img src="'+esc(idea.image)+'" style="width:100%;height:140px;object-fit:cover;border-radius:8px;margin-bottom:8px">':'')+'<div class="idea-hdr"><span class="badge" style="background:#F5F5F0">'+esc(idea.account)+'</span><span class="text-xs text-muted">'+esc(idea.cat)+' · '+esc(idea.priority)+'</span></div><div class="idea-desc">'+esc(idea.desc)+'</div><div class="idea-plan">执行: '+esc(idea.plan)+'</div><div class="idea-foot"><span class="badge" style="background:'+(idea.status.includes('完成')||idea.status.includes('已')?'#E8F5E9':'#FFF3E0')+';color:'+(idea.status.includes('完成')||idea.status.includes('已')?'#388E3C':'#E67E22')+'">'+esc(idea.status)+'</span><div class="flex gap-8"><button class="btn btn-ghost btn-sm" onclick="editIdea(\''+idea.id+'\')">编辑</button><button class="btn btn-ghost btn-sm" style="color:#D4A0A0" onclick="delIdea(\''+idea.id+'\')">删除</button></div></div></div>'
+    '<div class="idea-card">'+'<div class="idea-hdr"><span class="badge" style="background:#F5F5F0">'+esc(idea.account)+'</span><span class="text-xs text-muted">'+esc(idea.cat)+' · '+esc(idea.priority)+'</span></div><div class="idea-desc">'+esc(idea.desc)+'</div><div class="idea-plan">执行: '+esc(idea.plan)+'</div><div class="idea-foot"><span class="badge" style="background:'+(idea.status.includes('完成')||idea.status.includes('已')?'#E8F5E9':'#FFF3E0')+';color:'+(idea.status.includes('完成')||idea.status.includes('已')?'#388E3C':'#E67E22')+'">'+esc(idea.status)+'</span><div class="flex gap-8"><button class="btn btn-ghost btn-sm" onclick="editIdea(\''+idea.id+'\')">编辑</button><button class="btn btn-ghost btn-sm" style="color:#D4A0A0" onclick="delIdea(\''+idea.id+'\')">删除</button></div></div></div>'
   ).join('')+'<div class="idea-add" onclick="openIdeaModal()">+ 新增灵感</div>';
 }
 function openIdeaModal(){editIid=null;document.getElementById('ideaModalTitle').textContent='新增灵感';document.getElementById('ideaCat').value='';document.getElementById('ideaDesc').value='';document.getElementById('ideaPlan').value='';document.getElementById('ideaSaveBtn').textContent='保存';document.getElementById('ideaModal').classList.add('show');}
-function editIdea(id){const idea=DATA.ideas.find(i=>i.id===id);if(!idea)return;editIid=id;document.getElementById('ideaModalTitle').textContent='编辑灵感';document.getElementById('ideaAccount').value=idea.account;document.getElementById('ideaCat').value=idea.cat;document.getElementById('ideaDesc').value=idea.desc;document.getElementById('ideaPlan').value=idea.plan;document.getElementById('ideaPriority').value=idea.priority;if(idea.image){document.getElementById('ideaImgData').value=idea.image;document.getElementById('ideaImgPreview').src=idea.image;document.getElementById('ideaImgPreview').style.display='block';document.getElementById('ideaImgClear').style.display='inline-block';}else{clearIdeaImage();}document.getElementById('ideaSaveBtn').textContent='更新';document.getElementById('ideaModal').classList.add('show');}
+function editIdea(id){const idea=DATA.ideas.find(i=>i.id===id);if(!idea)return;editIid=id;document.getElementById('ideaModalTitle').textContent='编辑灵感';document.getElementById('ideaAccount').value=idea.account;document.getElementById('ideaCat').value=idea.cat;document.getElementById('ideaDesc').value=idea.desc;document.getElementById('ideaPlan').value=idea.plan;document.getElementById('ideaPriority').value=idea.priority;document.getElementById('ideaSaveBtn').textContent='更新';document.getElementById('ideaModal').classList.add('show');}
 function closeIdeaModal(){document.getElementById('ideaModal').classList.remove('show');editIid=null;}
 function saveIdea(){
-  const idea={id:editIid||'i'+Date.now(),account:document.getElementById('ideaAccount').value,cat:document.getElementById('ideaCat').value,desc:document.getElementById('ideaDesc').value,plan:document.getElementById('ideaPlan').value,priority:document.getElementById('ideaPriority').value,image:document.getElementById('ideaImgData').value||'',status:editIid?(DATA.ideas.find(i=>i.id===editIid)?.status||'新灵感'):'新灵感'};
+  const idea={id:editIid||'i'+Date.now(),account:document.getElementById('ideaAccount').value,cat:document.getElementById('ideaCat').value,desc:document.getElementById('ideaDesc').value,plan:document.getElementById('ideaPlan').value,priority:document.getElementById('ideaPriority').value,image:'',status:editIid?(DATA.ideas.find(i=>i.id===editIid)?.status||'新灵感'):'新灵感'};
   if(editIid){const idx=DATA.ideas.findIndex(i=>i.id===editIid);if(idx>=0)DATA.ideas[idx]=idea;}else{DATA.ideas.unshift(idea);}
   sv();closeIdeaModal();ri();
 }

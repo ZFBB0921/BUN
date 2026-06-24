@@ -618,6 +618,15 @@ tr{transition:background .2s}
 ::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:var(--r-full)}
 ::-webkit-scrollbar-thumb:hover{background:var(--muted)}
 
+
+
+/* Sticky modal */
+.modal-sticky{display:flex;flex-direction:column;max-height:85vh;padding:0;overflow:hidden}
+.modal-sticky-top{padding:24px 28px 16px;border-bottom:1px solid var(--border);flex-shrink:0}
+.modal-sticky-top h3{margin-bottom:0}
+.modal-scroll{flex:1;overflow-y:auto;padding:16px 28px;min-height:0}
+.modal-sticky-bot{padding:16px 28px;border-top:1px solid var(--border);flex-shrink:0;display:flex;gap:8px;justify-content:flex-end;background:var(--card-solid)}
+
 /* ═══════ RESPONSIVE ═══════ */
 @media(max-width:768px){
   .topbar-nav{display:none}.mobile-btn{display:block}

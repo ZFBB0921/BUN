@@ -107,7 +107,7 @@
   <div class="form-grp"><label class="form-lbl">灵感分类</label><input class="form-inp" id="ideaCat" placeholder="如: Vlog日常"></div>
   <div class="form-grp"><label class="form-lbl">灵感描述</label><textarea class="form-txt" id="ideaDesc" placeholder="详细描述..."></textarea></div>
   <div class="form-grp"><label class="form-lbl">执行计划</label><textarea class="form-txt" id="ideaPlan" placeholder="怎么拍? 需要什么?"></textarea></div>
-  <div class="form-grp"><label class="form-lbl">参考图片</label><input type="file" class="form-inp" id="ideaImgInput" accept="image/*" onchange="handleIdeaImage(this)"><input type="hidden" id="ideaImgData" value=""><img id="ideaImgPreview" style="display:none;width:100%;max-height:200px;object-fit:cover;border-radius:8px;margin-top:8px"><button type="button" class="btn btn-ghost btn-sm mt-8" onclick="clearIdeaImage()" id="ideaImgClear" style="display:none">清除图片</button></div>
+  
   <div class="form-grp"><label class="form-lbl">优先级</label><select class="form-sel" id="ideaPriority"><option>P1</option><option>P2</option><option>P3</option></select></div>
   <div class="flex gap-8" style="justify-content:flex-end"><button class="btn btn-sec" onclick="closeIdeaModal()">取消</button><button class="btn btn-pri" id="ideaSaveBtn" onclick="saveIdea()">保存</button></div>
 </div></div>
@@ -116,9 +116,10 @@
 <div class="modal-overlay" id="draftPicker"><div class="modal" id="draftPickerBody"></div></div>
 
 <!-- Content Edit Modal -->
-<div class="modal-overlay" id="contentModal"><div class="modal">
-  <h3 id="contentModalTitle">编辑内容</h3><div id="contentModalBody"></div>
-  <div class="flex gap-8 mt-16" style="justify-content:flex-end"><button class="btn btn-sec" onclick="closeContentModal()">取消</button><button class="btn btn-pri" onclick="saveContent()">保存</button></div>
+<div class="modal-overlay" id="contentModal"><div class="modal modal-sticky" id="contentModalWrap">
+  <div class="modal-sticky-top"><h3 id="contentModalTitle">编辑内容</h3></div>
+  <div class="modal-scroll" id="contentModalBody"></div>
+  <div class="modal-sticky-bot"><button class="btn btn-sec" onclick="closeContentModal()">取消</button><button class="btn btn-pri" onclick="saveContent()">保存</button></div>
 </div></div>
 
 <!-- Firebase SDK -->
