@@ -180,24 +180,53 @@ function calShift(dir){calM+=dir;if(calM>12){calY++;calM=1;}else if(calM<1){calY
 function rdt(){
   const c=document.getElementById('dateTasks');
   if(!calSel){c.innerHTML='<div class="date-task-empty">点击日历上的日期查看任务</div>';return;}
-  const d=new Date(calSel);const dayTs=DATA.tasks[calSel]||{};
+  const dayTs=DATA.tasks[calSel]||{};
   const tAccs=Object.entries(dayTs).map(([id,t])=>{const a=ACCOUNTS.find(ac=>ac.id===id);return a?{...a,status:t.status,checked:t.checked}:null;}).filter(Boolean);
   if(!tAccs.length){c.innerHTML='<div class="date-task-empty">当天无发布任务</div>';return;}
-  let h='';tAccs.forEach(ac=>{const cl=ACC_CLR[ac.id],sc=ST_CLR[ac.status]||ST_CLR.pending;
-    h+='<div class="date-task-card"><div class="date-task-bar" style="background:'+cl.d+'"></div><div class="date-task-content"><div class="date-task-info"><span class="date-task-acc" style="background:'+cl.l+';color:'+cl.d+'">'+ac.name+'</span><div class="date-task-plats">'+ac.platforms.join(' · ')+'</div>'+(()=>{const ct2=DATA.content.filter(cc=>cc.accountId===ac.id&&cc.date===calSel&&cc.title);return ct2.map(cc=>'<span style="font-size:10px;color:var(--muted);display:block">'+cc.platform+': '+esc(cc.title).substring(0,18)+(cc.title.length>18?'...':'')+'</span>').join('');})()+'</div><button class="date-task-status" style="background:'+sc.bg+';color:'+sc.tx+'" onclick="cycSt(\''+calSel+'\',\''+ac.id+'\')">'+ST_LABEL[ac.status]+' ?</button></div></div>';
+  let h='';tAccs.forEach(ac=>{
+    const cl=ACC_CLR[ac.id];
+    const contents=DATA.content.filter(ct=>ct.accountId===ac.id&&ct.date===calSel);
+    h+='<div class="date-task-card"><div class="date-task-bar" style="background:'+cl.d+'"></div><div class="date-task-content">';
+    h+='<div class="date-task-info"><span class="date-task-acc" style="background:'+cl.l+';color:'+cl.d+'">'+ac.name+'</span>';
+    h+='<div class="date-task-platforms">';
+    contents.forEach(ct=>{
+      const sc=ST_CLR[ct.status]||ST_CLR.pending;
+      const hasTitle=ct.title?'<span class="date-task-title">'+esc(ct.title).substring(0,24)+(ct.title.length>24?'...':'')+'</span>':'';
+      h+='<div class="date-task-plat-row"><span class="date-task-plat-tag">'+ct.platform+'</span>'+hasTitle+'<button class="date-task-status-btn" style="background:'+sc.bg+';color:'+sc.tx+'" onclick="toggleContentStatus(\''+ct.id+'\')">'+ST_LABEL[ct.status]+'</button></div>';
+    });
+    h+='</div></div></div>';
   });c.innerHTML=h;
 }
-function cycSt(dt,id){if(!DATA.tasks[dt]||!DATA.tasks[dt][id])return;DATA.tasks[dt][id].status=NEXT_ST[DATA.tasks[dt][id].status]||'pending';if(DATA.tasks[dt][id].status==='done')DATA.tasks[dt][id].checked=true;sv();rc();}
+function cycSt(dt,id){if(!DATA.tasks[dt]||!DATA.tasks[dt][id])return;DATA.tasks[dt][id].status=NEXT_ST[DATA.tasks[dt][id].status]||'pending';if(DATA.tasks[dt][id].status==='done')DATA.tasks[dt][id].checked=true;save();rc();}
+function toggleContentStatus(cid){
+  const ct=DATA.content.find(c=>c.id===cid);if(!ct)return;
+  ct.status=NEXT_ST[ct.status]||'pending';
+  if(ct.status==='done'){
+    const dt=ct.date;if(DATA.tasks[dt]&&DATA.tasks[dt][ct.accountId])DATA.tasks[dt][ct.accountId].checked=true;
+  }
+  save();rct();rdt();
+}
 function rup(){
   const c=document.getElementById('upcomingList');const td7=todayStr();let h='';
   for(let i=0;i<7;i++){const d=new Date();d.setDate(d.getDate()+i);const dt=d.toISOString().split('T')[0];const m=d.getMonth()+1,dy=d.getDate();const WDS2=['周日','周一','周二','周三','周四','周五','周六'];const isT=dt===td7;const dayTs=DATA.tasks[dt]||{};const tAccs=Object.entries(dayTs).map(([id,t])=>{const a=ACCOUNTS.find(ac=>ac.id===id);return a?{...a,status:t.status,checked:t.checked}:null;}).filter(Boolean);
     h+='<div class="upcoming-day'+(isT?' today':'')+'"><div class="upcoming-date">'+m+'月'+dy+'日 '+WDS2[d.getDay()]+(isT?' <span class="upcoming-today-badge">今天</span>':'')+(tAccs.length===0?' <span class="text-sm text-muted">无排期</span>':'')+'</div>';
-    if(tAccs.length){h+='<div class="upcoming-pills">';tAccs.forEach(ac=>{const cl=ACC_CLR[ac.id];h+='<span class="upcoming-pill" style="background:'+cl.l+';color:'+cl.d+'">'+ac.name+' · '+ST_LABEL[ac.status]+(ac.checked?' ?':'')+'</span>';});h+='</div>';}
+    if(tAccs.length){h+='<div class="upcoming-pills">';tAccs.forEach(ac=>{
+      const cl=ACC_CLR[ac.id];
+      const dayContents=DATA.content.filter(ct=>ct.accountId===ac.id&&ct.date===dt);
+      h+='<div class="upcoming-item"><span class="upcoming-pill" style="background:'+cl.l+';color:'+cl.d+'">'+ac.name+'</span>';
+      if(dayContents.length){
+        h+='<div class="upcoming-plats">';
+        dayContents.forEach(dc=>{
+          const sc=ST_CLR[dc.status]||ST_CLR.pending;
+          h+='<span class="upcoming-plat" style="background:'+sc.bg+';color:'+sc.tx+'">'+dc.platform+'</span>';
+        });
+        h+='</div>';
+      }
+      h+='</div>';
+    });h+='</div>';}
     h+='</div>';
   }c.innerHTML=h;
 }
-
-// CREATION (content calendar editor)
 function rct(){
   if(!curAcc)curAcc=ACCOUNTS[0].id;
   document.getElementById('creationTabs').innerHTML=ACCOUNTS.map(a=>{const cl=ACC_CLR[a.id];const act=a.id===curAcc;return '<button class="btn '+(act?'btn-pri':'btn-sec')+' btn-sm" onclick="curAcc=\''+a.id+'\';rct();">'+a.name+'</button>';}).join('');
@@ -230,7 +259,7 @@ function saveCM(){
   it.caption=document.getElementById('edCp').value;it.status=document.getElementById('edSt').value;
   ['likes','views','comments','saves','shares'].forEach(k=>{it.data1d[k]=parseInt(document.getElementById('ed1d'+k).value)||0;it.data3d[k]=parseInt(document.getElementById('ed3d'+k).value)||0;});
   it.analysis=document.getElementById('edAn').value;it.adjustment=document.getElementById('edAj').value;it.avoid=document.getElementById('edAv').value;
-  sv();closeCM();rct();
+  sv();if(it.status==='done'){if(DATA.tasks[it.date]&&DATA.tasks[it.date][it.accountId])DATA.tasks[it.date][it.accountId].checked=true;}closeCM();rct();
 }
 function closeContentModal(){closeCM();}
 function saveContent(){saveCM();}
