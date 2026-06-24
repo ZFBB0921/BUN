@@ -541,25 +541,32 @@ function useDraft(id){
   const d=DATA.drafts.find(dr=>dr.id===id);if(!d)return;
   const acc=ACCOUNTS.find(a=>a.id===d.accountId);if(!acc)return;
   const WDS=['日','一','二','三','四','五','六'];
-  let h='<h3>选择发布日期 · '+esc(acc.name)+'</h3>';
-  h+='<div class="text-sm text-muted mb-12">平台: '+esc(d.platform)+' | 标题: '+esc(d.title)+'</div>';
-  h+='<div class="text-xs text-muted mb-12">'+esc(acc.name)+' 每'+(acc.posting==='odd'?'奇数':'偶数')+'日发布，以下为可选日期：</div>';
-  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;max-height:350px;overflow-y:auto">';
-  acc.postDays.forEach(day=>{
-    const dt='2026-07-'+String(day).padStart(2,'0');
-    const dObj=new Date(2026,6,day);
-    const wd=WDS[dObj.getDay()];
-    const existing=DATA.content.find(c=>c.accountId===d.accountId&&c.platform===d.platform&&c.date===dt);
-    const hasContent=existing&&existing.topic;
-    const bg=hasContent?'#FFF3E0':'#F5F5F0';
-    const txt=hasContent?'#E67E22':'#787872';
-    const label=hasContent?'已有内容 (点击覆盖)':'空 (点击填入)';
-    h+='<div style="padding:10px 12px;background:'+bg+';border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:all .15s" onclick="applyDraftToDate(\''+dt+'\')">';
-    h+='<div style="font-weight:600;font-size:13px;color:'+txt+'">7月'+day+'日 周'+wd+'</div>';
-    h+='<div style="font-size:11px;color:'+txt+'">'+label+'</div>';
+  // Get existing content dates for this account+platform, sorted
+  const existDates=[...new Set(DATA.content.filter(c=>c.accountId===d.accountId&&c.platform===d.platform).map(c=>c.date))].sort();
+  let h='<h3>选择发布日期 \u00b7 '+esc(acc.name)+'</h3>';
+  h+='<div class="text-sm text-muted mb-8">平台: '+esc(d.platform)+' | 标题: '+esc(d.title)+'</div>';
+  if(existDates.length===0){
+    h+='<div class="text-sm text-muted mb-12">暂无内容创作记录，请先在内容创作中新增日期</div>';
+  }else{
+    h+='<div class="text-xs text-muted mb-8">以下为内容创作中已存在的日期，点击填入：(共'+existDates.length+'条)</div>';
+    h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;max-height:350px;overflow-y:auto">';
+    existDates.forEach(dt=>{
+      const parts=dt.split('-');
+      const m=parseInt(parts[1]),dy=parseInt(parts[2]);
+      const dObj=new Date(parseInt(parts[0]),m-1,dy);
+      const wd=WDS[dObj.getDay()];
+      const existing=DATA.content.find(c=>c.accountId===d.accountId&&c.platform===d.platform&&c.date===dt);
+      const hasContent=existing&&existing.topic;
+      const bg=hasContent?'#FFF3E0':'#F5F5F0';
+      const txt=hasContent?'#E67E22':'#787872';
+      const label=hasContent?'已有内容 (点击覆盖)':'空 (点击填入)';
+      h+='<div style="padding:10px 12px;background:'+bg+';border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:all .15s" onclick="applyDraftToDate(\''+dt+'\')">';
+      h+='<div style="font-weight:600;font-size:13px;color:'+txt+'">'+m+'月'+dy+'日 周'+wd+'</div>';
+      h+='<div style="font-size:11px;color:'+txt+'">'+label+'</div>';
+      h+='</div>';
+    });
     h+='</div>';
-  });
-  h+='</div>';
+  }
   h+='<div class="flex mt-12" style="justify-content:flex-end"><button class="btn btn-sec btn-sm" onclick="closeDraftPicker()">取消</button></div>';
   document.getElementById('draftPickerBody').innerHTML=h;
   document.getElementById('draftPicker').classList.add('show');
@@ -573,8 +580,7 @@ function applyDraftToDate(dt){
       id:'from_'+d.id+'_'+dt.slice(8),accountId:d.accountId,accountName:acc.name,platform:d.platform,
       date:dt,topic:d.topic,title:d.title,content:d.content,
       caption:d.caption,cover:'待制作',status:'planning',
-      data1d:{comments:0,likes:0,views:0,saves:0,shares:0},
-      data3d:{comments:0,likes:0,views:0,saves:0,shares:0},
+      data:{likes:0,views:0,comments:0,saves:0,shares:0},link:'',
       analysis:'',adjustment:'',avoid:''
     };
     DATA.content.push(entry);
