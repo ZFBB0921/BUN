@@ -46,11 +46,11 @@ const NEXT_ST = {pending:'planning',planning:'ready',ready:'done',done:'pending'
 function defData(){
   const d={tasks:{},content:[],drafts:[],ideas:[]};
   for(let day=1;day<=31;day++){
-    const dt='2025-07-'+String(day).padStart(2,'0');d.tasks[dt]={};
+    const dt='2026-07-'+String(day).padStart(2,'0');d.tasks[dt]={};
     ACCOUNTS.forEach(a=>{if(a.postDays.includes(day))d.tasks[dt][a.id]={status:'pending',checked:false};});
   }
   ACCOUNTS.forEach(a=>{a.postDays.forEach(day=>{
-    const dt='2025-07-'+String(day).padStart(2,'0');
+    const dt='2026-07-'+String(day).padStart(2,'0');
     a.platforms.forEach(p=>{d.content.push({id:'c_'+a.id+'_'+day+'_'+p,accountId:a.id,accountName:a.name,platform:p,date:dt,topic:'',title:'',cover:'待制作',content:'',caption:'',status:'pending',data:{likes:0,views:0,comments:0,saves:0,shares:0},link:'',analysis:'',adjustment:'',avoid:''});});
   });});
   d.ideas=[{id:'i1',account:'本殷',cat:'Vlog日常',desc:'一日品牌主理人工作流记录',plan:'拍摄咖啡-产品检查-会议-收工',priority:'P2',status:'待拍摄'},{id:'i2',account:'BUNIN本殷',cat:'好物种草',desc:'发现小众高级感香薰蜡烛',plan:'特写+场景+音乐+文案',priority:'P1',status:'待选品'},{id:'i3',account:'殷然说',cat:'认知分享',desc:'普通人如何建立个人品牌',plan:'3分钟口播+金句字幕',priority:'P2',status:'待写稿'},{id:'i4',account:'本殷食叙',cat:'美食教程',desc:'给对象做精致晚餐，节假日不去人挤人',plan:'俯拍制作+摆盘+食谱文案',priority:'P1',status:'已生成'},{id:'i5',account:'本殷视觉',cat:'拍摄展示',desc:'香水产品主图拍摄全流程',plan:'布光+参数+对比+成片',priority:'P1',status:'待拍摄'},{id:'i6',account:'本殷伴行',cat:'信息差',desc:'帮粉丝解决AI工具问题',plan:'录屏+常见问题解答',priority:'P2',status:'待准备'},{id:'i7',account:'本殷',cat:'氛围感',desc:'黄昏光影下的日常碎片',plan:'光线-拍摄-Lr调色',priority:'P2',status:'待拍摄'},{id:'i8',account:'BUNIN本殷',cat:'好物种草',desc:'提升幸福感的桌面好物合集',plan:'俯拍+单品+体验',priority:'P1',status:'待选品'},{id:'i9',account:'本殷食叙',cat:'美食分享',desc:'探店小众咖啡馆',plan:'环境-咖啡-甜点-评价',priority:'P1',status:'待探店'}];
@@ -102,14 +102,14 @@ function ld(){try{const r=localStorage.getItem(STORAGE_KEY);if(r){const p=JSON.p
   else if(curView==='creation')rct();else if(curView==='drafts')rdf();
   else if(curView==='tracking')rt();else if(curView==='ideas')ri();
 }
-let DATA={tasks:{},content:[],drafts:[],ideas:[]},curView='dashboard',curAcc=ACCOUNTS[0].id,editCid=null,editIid=null,calY=2025,calM=7,calSel=null,draftSelId=null;
+let DATA={tasks:{},content:[],drafts:[],ideas:[]},curView='dashboard',curAcc=ACCOUNTS[0].id,editCid=null,editIid=null,calY=2026,calM=7,calSel=null,draftSelId=null;
 let ctFilterPlatform='',ctFilterAccount='',ctDateFrom='',ctDateTo='';
 let aiApiKey=localStorage.getItem('deepseek_key')||'';
 let aiStep=0,aiPlatform=null,aiAccount=null,aiTopic='',aiTitles=[],aiSelTitle=-1,aiContents=[],aiSelContent=-1;
 
 function esc(s){return s?String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'):'';}
 function todayStr(){const n=new Date();return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');}
-function todayJul(){const n=new Date();if(n.getFullYear()===2025&&n.getMonth()+1===7)return n.getDate();return 1;}
+function todayJul(){const n=new Date();if(n.getFullYear()===2026&&n.getMonth()+1===7)return n.getDate();return 1;}
 
 // NAVIGATION
 function nav(v){
@@ -125,7 +125,7 @@ function toggleMb(){document.getElementById('mobileNav').classList.toggle('show'
 
 // DASHBOARD
 function rd(){
-  const td='2025-07-'+String(todayJul()).padStart(2,'0');
+  const td='2026-07-'+String(todayJul()).padStart(2,'0');
   const tt=DATA.tasks[td]||{};const tc=Object.keys(tt).length;
   const allC=DATA.content;const doneC=allC.filter(c=>c.status==='done').length;
   let ttl=0,dn=0;Object.values(DATA.tasks).forEach(day=>Object.values(day).forEach(t=>{ttl++;if(t.checked)dn++;}));
@@ -147,7 +147,7 @@ function rd(){
   }).join('');
 }
 function tglChk(id){
-  const td='2025-07-'+String(todayJul()).padStart(2,'0');
+  const td='2026-07-'+String(todayJul()).padStart(2,'0');
   if(!DATA.tasks[td]||!DATA.tasks[td][id])return;
   DATA.tasks[td][id].checked=!DATA.tasks[td][id].checked;sv();rd();
 }
@@ -538,8 +538,8 @@ function useDraft(id){
   h+='<div class="text-xs text-muted mb-12">'+esc(acc.name)+' 每'+(acc.posting==='odd'?'奇数':'偶数')+'日发布，以下为可选日期：</div>';
   h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;max-height:350px;overflow-y:auto">';
   acc.postDays.forEach(day=>{
-    const dt='2025-07-'+String(day).padStart(2,'0');
-    const dObj=new Date(2025,6,day);
+    const dt='2026-07-'+String(day).padStart(2,'0');
+    const dObj=new Date(2026,6,day);
     const wd=WDS[dObj.getDay()];
     const existing=DATA.content.find(c=>c.accountId===d.accountId&&c.platform===d.platform&&c.date===dt);
     const hasContent=existing&&existing.topic;
