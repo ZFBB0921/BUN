@@ -1,6 +1,14 @@
 ﻿
-// ── 纯本地模式 (部署后可随时接入云端同步) ──
-let syncReady=true;
+// ── Firebase 配置 ──
+const FB_CONFIG = {
+  apiKey: "AIzaSyDHTP_BKw2xGZFazzJPLsjYo-YUndUaqtI",
+  authDomain: "benyin-cms-b5437.firebaseapp.com",
+  projectId: "benyin-cms-b5437",
+  storageBucket: "benyin-cms-b5437.firebasestorage.app",
+  messagingSenderId: "727363404095",
+  appId: "1:727363404095:web:cd20fe19488124e8bfd38a"
+};
+let db=null,uid=null,syncReady=false,unsub=null;
 const STORAGE_KEY = 'benyin_backup';
 
 const ACCOUNTS = [
@@ -51,8 +59,45 @@ function defData(){
 
 
 // ── Supabase 初始化 ──
-function initLocal(){ld();syncReady=true;refreshUI();}
-function sv(){DATA._ut=Date.now();try{localStorage.setItem(STORAGE_KEY,JSON.stringify(DATA));}catch(e){}}
+function initFB(){
+  try{
+    firebase.initializeApp(FB_CONFIG);
+    db=firebase.firestore();
+    db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
+    firebase.auth().signInAnonymously().then(()=>{
+      uid=firebase.auth().currentUser.uid;
+      // 实时监听
+      unsub=db.collection('users').doc(uid).onSnapshot(doc=>{
+        if(doc.exists){
+          const r=doc.data();
+          if(!r._ut||!DATA._ut||r._ut>=DATA._ut){
+            DATA.tasks=r.tasks||{};DATA.content=r.content||[];DATA.drafts=r.drafts||[];DATA.ideas=r.ideas||[];
+            DATA._ut=r._ut||0;
+            if(syncReady)refreshUI();
+          }
+        }else{
+          DATA=defData();DATA._ut=Date.now();sv();
+        }
+        syncReady=true;
+        const el=document.getElementById('syncStatus');if(el)el.style.display='inline';
+        refreshUI();
+      },err=>{console.error(err);ld();syncReady=true;refreshUI();});
+    }).catch(e=>{console.error(e);ld();syncReady=true;refreshUI();});
+  }catch(e){console.error(e);ld();syncReady=true;refreshUI();}
+}
+function sv(){
+  DATA._ut=Date.now();
+  try{localStorage.setItem(STORAGE_KEY,JSON.stringify(DATA));}catch(e){}
+  if(db&&uid){
+    db.collection('users').doc(uid).set({
+      tasks:DATA.tasks,content:DATA.content,drafts:DATA.drafts,ideas:DATA.ideas,_ut:DATA._ut
+    },{merge:true}).then(()=>{
+      const el=document.getElementById('syncStatus');if(el){el.textContent='● 已同步';el.style.color='var(--success)';}
+    }).catch(()=>{
+      const el2=document.getElementById('syncStatus');if(el2){el2.textContent='○ 离线';el2.style.color='var(--muted)';}
+    });
+  }
+}
 function ld(){try{const r=localStorage.getItem(STORAGE_KEY);if(r){const p=JSON.parse(r);if(!p.ideas||!p.ideas.length)p.ideas=defData().ideas;if(!p.drafts)p.drafts=[];DATA=p;return;}}catch(e){}DATA=defData();}function refreshUI(){
   if(curView==='dashboard')rd();else if(curView==='calendar')rc();
   else if(curView==='creation')rct();else if(curView==='drafts')rdf();
@@ -488,7 +533,7 @@ function saveIdea(){
 function delIdea(id){if(!confirm('确定删除？'))return;DATA.ideas=DATA.ideas.filter(i=>i.id!==id);sv();ri();}
 
 // INIT
-function init(){initLocal();}
+function init(){ld();initFB();}
 init();
 // PWA service worker
 if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js');}
