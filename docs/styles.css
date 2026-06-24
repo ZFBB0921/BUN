@@ -308,7 +308,7 @@ body{
 
 /* Calendar grid */
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
-.cal-wday{text-align:center;font-size:11px;font-weight:700;color:var(--muted);padding:6px 0}
+.cal-wday{text-align:center;font-size:12px;font-weight:700;color:var(--muted);padding:8px 0}
 .cal-day{
   aspect-ratio:1;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
@@ -322,7 +322,7 @@ body{
 .cal-day.sel{outline:2.5px solid var(--primary);outline-offset:-2px}
 .cal-day span{position:relative;z-index:1}
 .cal-dots{display:flex;gap:2px;position:absolute;bottom:4px}
-.cal-dot{width:4px;height:4px;border-radius:50%}
+.cal-dot{width:5px;height:5px;border-radius:50%}
 .cal-day.today .cal-dot{filter:brightness(2)}
 
 /* Date tasks section */
@@ -403,14 +403,14 @@ body{
 @media(max-width:768px){
   .cal-month{font-size:17px}
   .cal-nav-btn{width:34px;height:34px;font-size:12px}
-  .cal-grid{gap:2px}
-  .cal-day{font-size:12px;border-radius:8px}
-  .cal-wday{font-size:10px;padding:4px 0}
+  .cal-grid{gap:4px}
+  .cal-day{font-size:14px;border-radius:10px;min-height:38px}
+  .cal-wday{font-size:11px;padding:6px 0}
   .cal-dot{width:3px;height:3px}
   .date-task-body{padding:10px 12px}
   .date-task-acc{font-size:12px;padding:2px 10px}
   .date-task-plat{font-size:10px;min-width:36px;padding:2px 6px}
-  .date-task-topic{font-size:10px}
+  .date-task-topic{font-size:11px}
   .date-task-stbtn{font-size:10px;padding:3px 10px}
   .date-task-row{gap:4px}
   .upcoming-day{padding:10px 12px}
@@ -711,9 +711,9 @@ tr{transition:background .2s}
   .ai-step .num{width:24px;height:24px;font-size:10px}
   /* Calendar mobile fixes */
   .cal-day{font-size:11px;border-radius:var(--r-xs)}
-  .cal-wday{font-size:10px;padding:4px 0}
+  .cal-wday{font-size:11px;padding:6px 0}
   .cal-month{font-size:16px}
-  .cal-grid{gap:2px}
+  .cal-grid{gap:4px}
   .cal-dot{width:3px;height:3px}
   /* Date task mobile */
   .date-task-plat-row{gap:4px}

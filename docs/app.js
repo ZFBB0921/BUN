@@ -196,7 +196,7 @@ function rdt(){
       const sc=ST_CLR[ct.status]||ST_CLR.pending;
       h+='<div class="date-task-row">';
       h+='<span class="date-task-plat">'+ct.platform+'</span>';
-      h+='<span class="date-task-topic">'+(ct.title?esc(ct.title).substring(0,6)+(ct.title.length>6?'...':''):'--')+'</span>';
+      h+='<span class="date-task-topic">'+(ct.title?esc(ct.title):'--')+'</span>';
       h+='<button class="date-task-stbtn" style="background:'+sc.bg+';color:'+sc.tx+'" onclick="toggleContentStatus(\''+ct.id+'\')">'+ST_LABEL[ct.status]+'</button>';
       h+='</div>';
     });
