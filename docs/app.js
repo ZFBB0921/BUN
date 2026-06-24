@@ -189,16 +189,15 @@ function rdt(){
     const contents=DATA.content.filter(ct=>ct.accountId===ac.id&&ct.date===calSel);
     h+='<div class="date-task-card">';
     h+='<div class="date-task-bar" style="background:'+cl.d+'"></div>';
-    h+='<div class="date-task-content">';
-    h+='<div class="date-task-info">';
-    h+='<span class="date-task-acc" style="background:'+cl.l+';color:'+cl.d+'">'+ac.name+'</span>';
-    h+='<div class="date-task-platforms">';
+    h+='<div class="date-task-body">';
+    h+='<div class="date-task-head"><span class="date-task-acc" style="background:'+cl.l+';color:'+cl.d+'">'+ac.name+'</span><span class="date-task-count">'+contents.length+'个平台</span></div>';
+    h+='<div class="date-task-rows">';
     contents.forEach(ct=>{
       const sc=ST_CLR[ct.status]||ST_CLR.pending;
-      h+='<div class="date-task-plat-row">';
-      h+='<span class="date-task-plat-tag">'+ct.platform+'</span>';
-      h+='<span class="date-task-title">'+(ct.title?esc(ct.title).substring(0,5)+(ct.title.length>5?'...':''):'--')+'</span>';
-      h+='<button class="date-task-status-btn" style="background:'+sc.bg+';color:'+sc.tx+'" onclick="toggleContentStatus(\''+ct.id+'\')">'+ST_LABEL[ct.status]+'</button>';
+      h+='<div class="date-task-row">';
+      h+='<span class="date-task-plat">'+ct.platform+'</span>';
+      h+='<span class="date-task-topic">'+(ct.title?esc(ct.title).substring(0,6)+(ct.title.length>6?'...':''):'--')+'</span>';
+      h+='<button class="date-task-stbtn" style="background:'+sc.bg+';color:'+sc.tx+'" onclick="toggleContentStatus(\''+ct.id+'\')">'+ST_LABEL[ct.status]+'</button>';
       h+='</div>';
     });
     h+='</div></div></div>';
@@ -217,20 +216,17 @@ function toggleContentStatus(cid){
 function rup(){
   const c=document.getElementById('upcomingList');const td7=todayStr();let h='';
   for(let i=0;i<7;i++){const d=new Date();d.setDate(d.getDate()+i);const dt=d.toISOString().split('T')[0];const m=d.getMonth()+1,dy=d.getDate();const WDS2=['周日','周一','周二','周三','周四','周五','周六'];const isT=dt===td7;const dayTs=DATA.tasks[dt]||{};const tAccs=Object.entries(dayTs).map(([id,t])=>{const a=ACCOUNTS.find(ac=>ac.id===id);return a?{...a,status:t.status,checked:t.checked}:null;}).filter(Boolean);
-    h+='<div class="upcoming-day'+(isT?' today':'')+'"><div class="upcoming-date">'+m+'月'+dy+'日 '+WDS2[d.getDay()]+(isT?' <span class="upcoming-today-badge">今天</span>':'')+(tAccs.length===0?' <span class="text-sm text-muted">无排期</span>':'')+'</div>';
-    if(tAccs.length){h+='<div class="upcoming-pills">';tAccs.forEach(ac=>{
+    h+='<div class="upcoming-day'+(isT?' today':'')+'"><div class="upcoming-date">'+m+'月'+dy+'日 '+WDS2[d.getDay()]+(isT?' <span class="upcoming-today-badge">今天</span>':'')+(tAccs.length===0?' <span class="text-sm" style="opacity:.5">无排期</span>':'')+'</div>';
+    if(tAccs.length){h+='<div class="upcoming-items">';tAccs.forEach(ac=>{
       const cl=ACC_CLR[ac.id];
       const dayContents=DATA.content.filter(ct=>ct.accountId===ac.id&&ct.date===dt);
-      h+='<div class="upcoming-item"><span class="upcoming-pill" style="background:'+cl.l+';color:'+cl.d+'">'+ac.name+'</span>';
+      h+='<span class="upcoming-acc" style="background:'+cl.l+';color:'+cl.d+'">'+ac.name+'</span>';
       if(dayContents.length){
-        h+='<div class="upcoming-plats">';
         dayContents.forEach(dc=>{
           const sc=ST_CLR[dc.status]||ST_CLR.pending;
           h+='<span class="upcoming-plat" style="background:'+sc.bg+';color:'+sc.tx+'">'+dc.platform+'</span>';
         });
-        h+='</div>';
       }
-      h+='</div>';
     });h+='</div>';}
     h+='</div>';
   }c.innerHTML=h;

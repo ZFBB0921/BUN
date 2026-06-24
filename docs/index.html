@@ -50,16 +50,14 @@
 
 <!-- CALENDAR -->
 <div class="page" id="page-calendar">
-  <div class="cal-layout">
-    <div>
-      <div class="card card-shadow"><div class="card-body">
-        <div class="cal-header-row"><div class="cal-month" id="calMonthLabel"></div><div class="cal-nav"><button class="cal-nav-btn" onclick="calShift(-1)">◀</button><button class="cal-nav-btn" onclick="calShift(1)">▶</button></div></div>
-        <div class="cal-grid" id="calGrid"></div>
-      </div></div>
-      <div class="card card-shadow" style="margin-top:14px"><div class="card-header">当日任务</div><div class="card-body" id="dateTasks"></div></div>
-    </div>
-    <div>
-      <div class="card card-shadow"><div class="card-header">未来7天计划</div><div class="upcoming-list" id="upcomingList"></div></div>
+  <div class="cal-wrap">
+    <div class="card card-shadow"><div class="card-body">
+      <div class="cal-header"><div class="cal-month" id="calMonthLabel"></div><div class="cal-nav"><button class="cal-nav-btn" onclick="calShift(-1)">◀</button><button class="cal-nav-btn" onclick="calShift(1)">▶</button></div></div>
+      <div class="cal-grid" id="calGrid"></div>
+    </div></div>
+    <div class="cal-layout">
+      <div class="card card-shadow"><div class="card-header">当日任务</div><div class="card-body" id="dateTasks"></div></div>
+      <div class="card card-shadow"><div class="card-header">未来7天</div><div class="card-body" id="upcomingList"></div></div>
     </div>
   </div>
 </div>
