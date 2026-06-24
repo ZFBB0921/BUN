@@ -59,7 +59,7 @@ function defData(){
 
 
 // ── Supabase 初始化 ──
-function initFB(){
+function initFB(){if(window._fbFailed||typeof firebase==="undefined"){ld();syncReady=true;const el=document.getElementById("syncStatus");if(el){el.textContent="○ 离线 (未联网)";el.style.display="inline";el.style.color="var(--muted)";}refreshUI();return;}
   try{
     firebase.initializeApp(FB_CONFIG);
     db=firebase.firestore();
