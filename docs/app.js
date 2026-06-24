@@ -204,7 +204,7 @@ function rdt(){
   });
   c.innerHTML=h;
 }
-function cycSt(dt,id){if(!DATA.tasks[dt]||!DATA.tasks[dt][id])return;DATA.tasks[dt][id].status=NEXT_ST[DATA.tasks[dt][id].status]||'pending';if(DATA.tasks[dt][id].status==='done')DATA.tasks[dt][id].checked=true;save();rc();}
+function cycSt(dt,id){if(!DATA.tasks[dt]||!DATA.tasks[dt][id])return;DATA.tasks[dt][id].status=NEXT_ST[DATA.tasks[dt][id].status]||'pending';if(DATA.tasks[dt][id].status==='done')DATA.tasks[dt][id].checked=true;sv();rc();}
 function toggleContentStatus(cid,btn){
   const ct=DATA.content.find(c=>c.id===cid);if(!ct)return;
   ct.status=NEXT_ST[ct.status]||'pending';
@@ -218,7 +218,7 @@ function toggleContentStatus(cid,btn){
     btn.style.background=sc.bg;
     btn.style.color=sc.tx;
   }
-  save();
+  sv();
 }
 function rup(){
   const c=document.getElementById('upcomingList');const td7=todayStr();let h='';
