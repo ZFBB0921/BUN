@@ -1,0 +1,131 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="本殷运营">
+<meta name="theme-color" content="#3D3832">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<title>本殷运营管理</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="topbar"><div class="topbar-inner">
+  <a href="#" class="topbar-brand" onclick="nav('dashboard');return false"><div class="topbar-brand-icon">B</div>本殷运营</a>
+  <nav class="topbar-nav" id="topNav">
+    <a href="#" data-view="dashboard" class="active"><span class="nav-icon">📊</span>总览</a>
+    <a href="#" data-view="calendar"><span class="nav-icon">📅</span>发布日历</a>
+    <a href="#" data-view="creation"><span class="nav-icon">✏️</span>内容创作</a>
+    <a href="#" data-view="ai"><span class="nav-icon">⚡</span>AI创作</a>
+    <a href="#" data-view="drafts"><span class="nav-icon">📋</span>待发布</a>
+    <a href="#" data-view="tracking"><span class="nav-icon">📈</span>数据追踪</a>
+    <a href="#" data-view="ideas"><span class="nav-icon">💡</span>灵感库</a>
+  </nav>
+  <div style="display:flex;align-items:center;gap:10px">
+    <span id="syncStatus" style="font-size:11px;color:var(--success);display:none">● 已同步</span>
+    <button class="mobile-btn" onclick="toggleMb()">☰</button>
+  </div>
+</div>
+<nav class="mobile-nav" id="mobileNav">
+  <a href="#" data-view="dashboard" onclick="nav('dashboard')">📊 总览</a>
+  <a href="#" data-view="calendar" onclick="nav('calendar')">📅 发布日历</a>
+  <a href="#" data-view="creation" onclick="nav('creation')">✏️ 内容创作</a>
+  <a href="#" data-view="ai" onclick="nav('ai')">⚡ AI创作</a>
+  <a href="#" data-view="drafts" onclick="nav('drafts')">📋 待发布</a>
+  <a href="#" data-view="tracking" onclick="nav('tracking')">📈 数据追踪</a>
+  <a href="#" data-view="ideas" onclick="nav('ideas')">💡 灵感库</a>
+</nav></header>
+
+<main class="main">
+
+<!-- DASHBOARD -->
+<div class="page active" id="page-dashboard">
+  <div class="stat-row" id="statCards"></div>
+  <div class="card card-shadow"><div class="card-header">账号矩阵</div><div class="card-body"><div class="acc-grid" id="accCards"></div></div></div>
+</div>
+
+<!-- CALENDAR -->
+<div class="page" id="page-calendar">
+  <div class="cal-layout">
+    <div>
+      <div class="card card-shadow"><div class="card-body">
+        <div class="cal-header-row"><div class="cal-month" id="calMonthLabel"></div><div class="cal-nav"><button class="cal-nav-btn" onclick="calShift(-1)">◀</button><button class="cal-nav-btn" onclick="calShift(1)">▶</button></div></div>
+        <div class="cal-grid" id="calGrid"></div>
+      </div></div>
+      <div class="card card-shadow" style="margin-top:14px"><div class="card-header">当日任务</div><div class="card-body" id="dateTasks"></div></div>
+    </div>
+    <div>
+      <div class="card card-shadow"><div class="card-header">未来7天计划</div><div class="upcoming-list" id="upcomingList"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- CREATION -->
+<div class="page" id="page-creation">
+  <div class="card card-shadow"><div class="card-header">内容创作</div><div class="card-body">
+    <div class="flex flex-wrap gap-8 mb-16" id="creationTabs"></div>
+    <div class="table-wrap" id="creationTable"></div>
+  </div></div>
+</div>
+
+<!-- AI CREATION -->
+<div class="page" id="page-ai">
+  <div class="card card-shadow"><div class="card-body">
+    <div class="ai-steps" id="aiSteps"></div>
+    <div id="aiContent"></div>
+  </div></div>
+</div>
+
+<!-- DRAFTS -->
+<div class="page" id="page-drafts">
+  <div class="flex items-center justify-between mb-16"><span style="font-size:18px;font-weight:700">待发布内容</span><span class="text-sm text-muted">AI生成的内容保存在这里，可快速应用到内容创作</span></div>
+  <div id="draftsList"></div>
+</div>
+
+<!-- TRACKING -->
+<div class="page" id="page-tracking">
+  <div class="card card-shadow mb-16"><div class="card-header">账号数据总览</div><div class="card-body"><div class="table-wrap" id="trackingTable"></div></div></div>
+  <div class="card card-shadow"><div class="card-header">每周数据小结</div><div class="card-body"><div class="table-wrap" id="weeklyTable"></div></div></div>
+</div>
+
+<!-- IDEAS -->
+<div class="page" id="page-ideas">
+  <div class="flex items-center justify-between mb-16"><span style="font-size:18px;font-weight:700">选题灵感库</span><button class="btn btn-pri" onclick="openIdeaModal()">+ 新增灵感</button></div>
+  <div class="idea-grid" id="ideaCards"></div>
+</div>
+
+</main>
+
+<!-- Idea Modal -->
+<div class="modal-overlay" id="ideaModal"><div class="modal">
+  <h3 id="ideaModalTitle">新增灵感</h3>
+  <div class="form-grp"><label class="form-lbl">所属账号</label><select class="form-sel" id="ideaAccount"></select></div>
+  <div class="form-grp"><label class="form-lbl">灵感分类</label><input class="form-inp" id="ideaCat" placeholder="如: Vlog日常"></div>
+  <div class="form-grp"><label class="form-lbl">灵感描述</label><textarea class="form-txt" id="ideaDesc" placeholder="详细描述..."></textarea></div>
+  <div class="form-grp"><label class="form-lbl">执行计划</label><textarea class="form-txt" id="ideaPlan" placeholder="怎么拍? 需要什么?"></textarea></div>
+  <div class="form-grp"><label class="form-lbl">参考图片</label><input type="file" class="form-inp" id="ideaImgInput" accept="image/*" onchange="handleIdeaImage(this)"><input type="hidden" id="ideaImgData" value=""><img id="ideaImgPreview" style="display:none;width:100%;max-height:200px;object-fit:cover;border-radius:8px;margin-top:8px"><button type="button" class="btn btn-ghost btn-sm mt-8" onclick="clearIdeaImage()" id="ideaImgClear" style="display:none">清除图片</button></div>
+  <div class="form-grp"><label class="form-lbl">优先级</label><select class="form-sel" id="ideaPriority"><option>P1</option><option>P2</option><option>P3</option></select></div>
+  <div class="flex gap-8" style="justify-content:flex-end"><button class="btn btn-sec" onclick="closeIdeaModal()">取消</button><button class="btn btn-pri" id="ideaSaveBtn" onclick="saveIdea()">保存</button></div>
+</div></div>
+
+<!-- Draft Picker Modal -->
+<div class="modal-overlay" id="draftPicker"><div class="modal" id="draftPickerBody"></div></div>
+
+<!-- Content Edit Modal -->
+<div class="modal-overlay" id="contentModal"><div class="modal">
+  <h3 id="contentModalTitle">编辑内容</h3><div id="contentModalBody"></div>
+  <div class="flex gap-8 mt-16" style="justify-content:flex-end"><button class="btn btn-sec" onclick="closeContentModal()">取消</button><button class="btn btn-pri" onclick="saveContent()">保存</button></div>
+</div></div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+
+<script src="app.js"></script>
+</body>
+</html>
