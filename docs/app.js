@@ -64,7 +64,7 @@ function initFB(){
     firebase.initializeApp(FB_CONFIG);
     db=firebase.firestore();
     db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
-    firebase.auth().signInAnonymously().then(()=>{
+    firebase.auth().signInAnonymously().then(()=>{initFirestore();}).catch(()=>{initFirestore();});function initFirestore(){
       uid=firebase.auth().currentUser.uid;
       // 实时监听
       unsub=db.collection('app_data').doc('main').onSnapshot(doc=>{
@@ -88,7 +88,7 @@ function initFB(){
 function sv(){
   DATA._ut=Date.now();
   try{localStorage.setItem(STORAGE_KEY,JSON.stringify(DATA));}catch(e){}
-  if(db&&uid){
+  if(db){
     db.collection('app_data').doc('main').set({
       tasks:DATA.tasks,content:DATA.content,drafts:DATA.drafts,ideas:DATA.ideas,_ut:DATA._ut
     },{merge:true}).then(()=>{
