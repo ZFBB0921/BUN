@@ -103,7 +103,7 @@ function ld(){try{const r=localStorage.getItem(STORAGE_KEY);if(r){const p=JSON.p
   else if(curView==='tracking')rt();else if(curView==='ideas')ri();
 }
 let DATA={tasks:{},content:[],drafts:[],ideas:[]},curView='dashboard',curAcc=ACCOUNTS[0].id,editCid=null,editIid=null,calY=2025,calM=7,calSel=null,draftSelId=null;
-let ctFilter='all',ctFilterPlatform='',ctFilterAccount='',ctDateFrom='',ctDateTo='';
+let ctFilterPlatform='',ctFilterAccount='',ctDateFrom='',ctDateTo='';
 let aiApiKey=localStorage.getItem('deepseek_key')||'';
 let aiStep=0,aiPlatform=null,aiAccount=null,aiTopic='',aiTitles=[],aiSelTitle=-1,aiContents=[],aiSelContent=-1;
 
@@ -240,46 +240,42 @@ function rup(){
   }c.innerHTML=h;
 }
 function rct(){
-  if(!curAcc)curAcc=ACCOUNTS[0].id;
-  // ── Filter bar ──
+  // ── Unified filter bar ──
+  const allPlats=[...new Set(DATA.content.map(c=>c.platform))].sort();
   let fh='<div class="filter-bar">';
-  fh+='<select class="form-sel filter-sel" onchange="ctFilter=this.value;rct();">';
-  fh+='<option value="all"'+(ctFilter==='all'?' selected':'')+'>全部显示</option>';
-  fh+='<option value="platform"'+(ctFilter==='platform'?' selected':'')+'>按平台筛选</option>';
-  fh+='<option value="account"'+(ctFilter==='account'?' selected':'')+'>按账号筛选</option>';
+  // Account dropdown
+  fh+='<select class="form-sel filter-sel" onchange="ctFilterAccount=this.value;rct();">';
+  fh+='<option value="">全部账号</option>';
+  ACCOUNTS.forEach(a=>{fh+='<option value="'+a.id+'"'+(ctFilterAccount===a.id?' selected':'')+'>'+a.name+'</option>';});
   fh+='</select>';
-  if(ctFilter==='platform'){
-    const plats=[...new Set(DATA.content.map(c=>c.platform))].sort();
-    fh+='<select class="form-sel filter-sel" onchange="ctFilterPlatform=this.value;rct();">';
-    fh+='<option value="">全部平台</option>';
-    plats.forEach(p=>{fh+='<option value="'+p+'"'+(ctFilterPlatform===p?' selected':'')+'>'+p+'</option>';});
-    fh+='</select>';
-  }
-  if(ctFilter==='account'){
-    fh+='<select class="form-sel filter-sel" onchange="ctFilterAccount=this.value;rct();">';
-    fh+='<option value="">全部账号</option>';
-    ACCOUNTS.forEach(a=>{fh+='<option value="'+a.id+'"'+(ctFilterAccount===a.id?' selected':'')+'>'+a.name+'</option>';});
-    fh+='</select>';
-  }
+  // Platform dropdown
+  fh+='<select class="form-sel filter-sel" onchange="ctFilterPlatform=this.value;rct();">';
+  fh+='<option value="">全部平台</option>';
+  allPlats.forEach(p=>{fh+='<option value="'+p+'"'+(ctFilterPlatform===p?' selected':'')+'>'+p+'</option>';});
+  fh+='</select>';
+  // Date range
   fh+='<input class="form-inp filter-inp" type="date" value="'+ctDateFrom+'" onchange="ctDateFrom=this.value;rct();" placeholder="起始日期">';
-  fh+='<span class="text-sm text-muted">至</span>';
+  fh+='<span class="filter-sep">至</span>';
   fh+='<input class="form-inp filter-inp" type="date" value="'+ctDateTo+'" onchange="ctDateTo=this.value;rct();" placeholder="结束日期">';
+  // Clear button
+  fh+='<button class="btn btn-ghost btn-sm filter-clear" onclick="ctFilterAccount='';ctFilterPlatform='';ctDateFrom='';ctDateTo='';rct();">清除筛选</button>';
   fh+='</div>';
-  document.getElementById('creationTabs').innerHTML=fh+ACCOUNTS.map(a=>{const cl=ACC_CLR[a.id];const act=a.id===curAcc;return '<button class="btn '+(act?'btn-pri':'btn-sec')+' btn-sm" onclick="curAcc=\''+a.id+'\';rct();">'+a.name+'</button>';}).join('');
-  
-  // ── Filter items ──
-  let items=DATA.content.filter(c=>c.accountId===curAcc);
-  if(ctFilter==='platform'&&ctFilterPlatform) items=items.filter(c=>c.platform===ctFilterPlatform);
-  if(ctFilter==='account'&&ctFilterAccount) items=items.filter(c=>c.accountId===ctFilterAccount);
+  document.getElementById('creationTabs').innerHTML=fh;
+
+  // ── Filter + Sort ──
+  let items=DATA.content.slice();
+  if(ctFilterAccount) items=items.filter(c=>c.accountId===ctFilterAccount);
+  if(ctFilterPlatform) items=items.filter(c=>c.platform===ctFilterPlatform);
   if(ctDateFrom) items=items.filter(c=>c.date>=ctDateFrom);
   if(ctDateTo) items=items.filter(c=>c.date<=ctDateTo);
-  items.sort((a,b)=>a.date.localeCompare(b.date)||a.platform.localeCompare(b.platform));
-  
-  let h='<table><thead><tr><th>日期</th><th>平台</th><th>选题大纲</th><th>标题</th><th>状态</th><th>总数据</th><th>发布链接</th><th>操作</th></tr></thead><tbody>';
+  items.sort((a,b)=>a.date.localeCompare(b.date)||a.platform.localeCompare(b.platform)||a.accountName.localeCompare(b.accountName));
+
+  // ── Table ──
+  let h='<table><thead><tr><th>日期</th><th>账号</th><th>平台</th><th>选题大纲</th><th>标题</th><th>状态</th><th>总数据</th><th>发布链接</th><th>操作</th></tr></thead><tbody>';
   items.forEach(it=>{const sc=ST_CLR[it.status]||ST_CLR.pending;
     const dd=it.data||it.data1d||{likes:0,views:0,comments:0,saves:0,shares:0};
     const tdStr='赞'+dd.likes+' 观'+dd.views+' 评'+(dd.comments||0)+' 藏'+(dd.saves||0)+' 享'+(dd.shares||0);
-    h+='<tr><td>'+it.date.slice(5)+'</td><td>'+it.platform+'</td><td style="max-width:140px;cursor:pointer;font-size:12px" onclick="openCM(\''+it.id+'\')">'+(it.topic?esc(it.topic).substring(0,30)+(it.topic.length>30?'...':''):'<span style="color:#CCC">点击填写</span>')+'</td><td style="max-width:130px;font-size:12px">'+(it.title?esc(it.title).substring(0,20)+(it.title.length>20?'...':''):'-')+'</td><td><span class="badge" style="background:'+sc.bg+';color:'+sc.tx+'">'+ST_LABEL[it.status]+'</span></td><td style="font-size:11px">'+tdStr+'</td><td style="max-width:160px;font-size:11px">'+(it.link?'<a href="'+esc(it.link)+'" target="_blank" style="color:var(--primary);word-break:break-all">'+esc(it.link).substring(0,30)+'...</a>':'-')+'</td><td><button class="btn btn-sec btn-sm" onclick="openCM(\''+it.id+'\')">编辑</button></td></tr>';
+    h+='<tr><td>'+it.date.slice(5)+'</td><td style="font-weight:500;font-size:12px">'+it.accountName+'</td><td>'+it.platform+'</td><td style="max-width:130px;cursor:pointer;font-size:12px" onclick="openCM(\''+it.id+'\')">'+(it.topic?esc(it.topic).substring(0,28)+(it.topic.length>28?'...':''):'<span style="color:#CCC">点击填写</span>')+'</td><td style="max-width:120px;font-size:12px">'+(it.title?esc(it.title).substring(0,18)+(it.title.length>18?'...':''):'-')+'</td><td><span class="badge" style="background:'+sc.bg+';color:'+sc.tx+'">'+ST_LABEL[it.status]+'</span></td><td style="font-size:11px">'+tdStr+'</td><td style="max-width:150px;font-size:11px">'+(it.link?'<a href="'+esc(it.link)+'" target="_blank" style="color:var(--primary);word-break:break-all">'+esc(it.link).substring(0,28)+'...</a>':'-')+'</td><td><button class="btn btn-sec btn-sm" onclick="openCM(\''+it.id+'\')">编辑</button></td></tr>';
   });h+='</tbody></table>';document.getElementById('creationTable').innerHTML=h;
 }
 function openCM(id){editCid=id;const it=DATA.content.find(c=>c.id===id);if(!it)return;
