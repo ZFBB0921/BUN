@@ -51,7 +51,7 @@ function defData(){
   }
   ACCOUNTS.forEach(a=>{a.postDays.forEach(day=>{
     const dt='2025-07-'+String(day).padStart(2,'0');
-    a.platforms.forEach(p=>{d.content.push({id:'c_'+a.id+'_'+day+'_'+p,accountId:a.id,accountName:a.name,platform:p,date:dt,topic:'',title:'',cover:'待制作',content:'',caption:'',status:'pending',data1d:{comments:0,likes:0,views:0,saves:0,shares:0},data3d:{comments:0,likes:0,views:0,saves:0,shares:0},analysis:'',adjustment:'',avoid:''});});
+    a.platforms.forEach(p=>{d.content.push({id:'c_'+a.id+'_'+day+'_'+p,accountId:a.id,accountName:a.name,platform:p,date:dt,topic:'',title:'',cover:'待制作',content:'',caption:'',status:'pending',data:{likes:0,views:0,comments:0,saves:0,shares:0},link:'',analysis:'',adjustment:'',avoid:''});});
   });});
   d.ideas=[{id:'i1',account:'本殷',cat:'Vlog日常',desc:'一日品牌主理人工作流记录',plan:'拍摄咖啡-产品检查-会议-收工',priority:'P2',status:'待拍摄'},{id:'i2',account:'BUNIN本殷',cat:'好物种草',desc:'发现小众高级感香薰蜡烛',plan:'特写+场景+音乐+文案',priority:'P1',status:'待选品'},{id:'i3',account:'殷然说',cat:'认知分享',desc:'普通人如何建立个人品牌',plan:'3分钟口播+金句字幕',priority:'P2',status:'待写稿'},{id:'i4',account:'本殷食叙',cat:'美食教程',desc:'给对象做精致晚餐，节假日不去人挤人',plan:'俯拍制作+摆盘+食谱文案',priority:'P1',status:'已生成'},{id:'i5',account:'本殷视觉',cat:'拍摄展示',desc:'香水产品主图拍摄全流程',plan:'布光+参数+对比+成片',priority:'P1',status:'待拍摄'},{id:'i6',account:'本殷伴行',cat:'信息差',desc:'帮粉丝解决AI工具问题',plan:'录屏+常见问题解答',priority:'P2',status:'待准备'},{id:'i7',account:'本殷',cat:'氛围感',desc:'黄昏光影下的日常碎片',plan:'光线-拍摄-Lr调色',priority:'P2',status:'待拍摄'},{id:'i8',account:'BUNIN本殷',cat:'好物种草',desc:'提升幸福感的桌面好物合集',plan:'俯拍+单品+体验',priority:'P1',status:'待选品'},{id:'i9',account:'本殷食叙',cat:'美食分享',desc:'探店小众咖啡馆',plan:'环境-咖啡-甜点-评价',priority:'P1',status:'待探店'}];
   return d;
@@ -103,6 +103,7 @@ function ld(){try{const r=localStorage.getItem(STORAGE_KEY);if(r){const p=JSON.p
   else if(curView==='tracking')rt();else if(curView==='ideas')ri();
 }
 let DATA={tasks:{},content:[],drafts:[],ideas:[]},curView='dashboard',curAcc=ACCOUNTS[0].id,editCid=null,editIid=null,calY=2025,calM=7,calSel=null,draftSelId=null;
+let ctFilter='all',ctFilterPlatform='',ctFilterAccount='',ctDateFrom='',ctDateTo='';
 let aiApiKey=localStorage.getItem('deepseek_key')||'';
 let aiStep=0,aiPlatform=null,aiAccount=null,aiTopic='',aiTitles=[],aiSelTitle=-1,aiContents=[],aiSelContent=-1;
 
@@ -240,35 +241,74 @@ function rup(){
 }
 function rct(){
   if(!curAcc)curAcc=ACCOUNTS[0].id;
-  document.getElementById('creationTabs').innerHTML=ACCOUNTS.map(a=>{const cl=ACC_CLR[a.id];const act=a.id===curAcc;return '<button class="btn '+(act?'btn-pri':'btn-sec')+' btn-sm" onclick="curAcc=\''+a.id+'\';rct();">'+a.name+'</button>';}).join('');
-  const items=DATA.content.filter(c=>c.accountId===curAcc).sort((a,b)=>a.date.localeCompare(b.date)||a.platform.localeCompare(b.platform));
-  let h='<table><thead><tr><th>日期</th><th>平台</th><th>选题大纲</th><th>标题</th><th>状态</th><th>1d赞</th><th>1d观看</th><th>操作</th></tr></thead><tbody>';
+  // ── Filter bar ──
+  let fh='<div class="filter-bar">';
+  fh+='<select class="form-sel filter-sel" onchange="ctFilter=this.value;rct();">';
+  fh+='<option value="all"'+(ctFilter==='all'?' selected':'')+'>全部显示</option>';
+  fh+='<option value="platform"'+(ctFilter==='platform'?' selected':'')+'>按平台筛选</option>';
+  fh+='<option value="account"'+(ctFilter==='account'?' selected':'')+'>按账号筛选</option>';
+  fh+='</select>';
+  if(ctFilter==='platform'){
+    const plats=[...new Set(DATA.content.map(c=>c.platform))].sort();
+    fh+='<select class="form-sel filter-sel" onchange="ctFilterPlatform=this.value;rct();">';
+    fh+='<option value="">全部平台</option>';
+    plats.forEach(p=>{fh+='<option value="'+p+'"'+(ctFilterPlatform===p?' selected':'')+'>'+p+'</option>';});
+    fh+='</select>';
+  }
+  if(ctFilter==='account'){
+    fh+='<select class="form-sel filter-sel" onchange="ctFilterAccount=this.value;rct();">';
+    fh+='<option value="">全部账号</option>';
+    ACCOUNTS.forEach(a=>{fh+='<option value="'+a.id+'"'+(ctFilterAccount===a.id?' selected':'')+'>'+a.name+'</option>';});
+    fh+='</select>';
+  }
+  fh+='<input class="form-inp filter-inp" type="date" value="'+ctDateFrom+'" onchange="ctDateFrom=this.value;rct();" placeholder="起始日期">';
+  fh+='<span class="text-sm text-muted">至</span>';
+  fh+='<input class="form-inp filter-inp" type="date" value="'+ctDateTo+'" onchange="ctDateTo=this.value;rct();" placeholder="结束日期">';
+  fh+='</div>';
+  document.getElementById('creationTabs').innerHTML=fh+ACCOUNTS.map(a=>{const cl=ACC_CLR[a.id];const act=a.id===curAcc;return '<button class="btn '+(act?'btn-pri':'btn-sec')+' btn-sm" onclick="curAcc=\''+a.id+'\';rct();">'+a.name+'</button>';}).join('');
+  
+  // ── Filter items ──
+  let items=DATA.content.filter(c=>c.accountId===curAcc);
+  if(ctFilter==='platform'&&ctFilterPlatform) items=items.filter(c=>c.platform===ctFilterPlatform);
+  if(ctFilter==='account'&&ctFilterAccount) items=items.filter(c=>c.accountId===ctFilterAccount);
+  if(ctDateFrom) items=items.filter(c=>c.date>=ctDateFrom);
+  if(ctDateTo) items=items.filter(c=>c.date<=ctDateTo);
+  items.sort((a,b)=>a.date.localeCompare(b.date)||a.platform.localeCompare(b.platform));
+  
+  let h='<table><thead><tr><th>日期</th><th>平台</th><th>选题大纲</th><th>标题</th><th>状态</th><th>总数据</th><th>发布链接</th><th>操作</th></tr></thead><tbody>';
   items.forEach(it=>{const sc=ST_CLR[it.status]||ST_CLR.pending;
-    h+='<tr><td>'+it.date.slice(5)+'</td><td>'+it.platform+'</td><td style="max-width:180px;cursor:pointer;font-size:12px" onclick="openCM(\''+it.id+'\')">'+(it.topic?esc(it.topic).substring(0,35)+(it.topic.length>35?'...':''):'<span style="color:#CCC">点击填写</span>')+'</td><td style="max-width:150px;font-size:12px">'+(it.title?esc(it.title).substring(0,22)+'...':'-')+'</td><td><span class="badge" style="background:'+sc.bg+';color:'+sc.tx+'">'+ST_LABEL[it.status]+'</span></td><td>'+(it.data1d.likes||0)+'</td><td>'+(it.data1d.views||0)+'</td><td><button class="btn btn-sec btn-sm" onclick="openCM(\''+it.id+'\')">编辑</button></td></tr>';
+    const dd=it.data||it.data1d||{likes:0,views:0,comments:0,saves:0,shares:0};
+    const tdStr='赞'+dd.likes+' 观'+dd.views+' 评'+(dd.comments||0)+' 藏'+(dd.saves||0)+' 享'+(dd.shares||0);
+    h+='<tr><td>'+it.date.slice(5)+'</td><td>'+it.platform+'</td><td style="max-width:140px;cursor:pointer;font-size:12px" onclick="openCM(\''+it.id+'\')">'+(it.topic?esc(it.topic).substring(0,30)+(it.topic.length>30?'...':''):'<span style="color:#CCC">点击填写</span>')+'</td><td style="max-width:130px;font-size:12px">'+(it.title?esc(it.title).substring(0,20)+(it.title.length>20?'...':''):'-')+'</td><td><span class="badge" style="background:'+sc.bg+';color:'+sc.tx+'">'+ST_LABEL[it.status]+'</span></td><td style="font-size:11px">'+tdStr+'</td><td style="max-width:160px;font-size:11px">'+(it.link?'<a href="'+esc(it.link)+'" target="_blank" style="color:var(--primary);word-break:break-all">'+esc(it.link).substring(0,30)+'...</a>':'-')+'</td><td><button class="btn btn-sec btn-sm" onclick="openCM(\''+it.id+'\')">编辑</button></td></tr>';
   });h+='</tbody></table>';document.getElementById('creationTable').innerHTML=h;
 }
 function openCM(id){editCid=id;const it=DATA.content.find(c=>c.id===id);if(!it)return;
-  document.getElementById('contentModalTitle').textContent='编辑 · '+it.accountName+' · '+it.platform+' · '+it.date;
+  // Ensure unified data field exists (migrate from old format)
+  if(!it.data){it.data={likes:0,views:0,comments:0,saves:0,shares:0};if(it.data1d){it.data.likes=(it.data1d.likes||0)+(it.data3d?it.data3d.likes||0:0);it.data.views=(it.data1d.views||0)+(it.data3d?it.data3d.views||0:0);it.data.comments=(it.data1d.comments||0)+(it.data3d?it.data3d.comments||0:0);it.data.saves=(it.data1d.saves||0)+(it.data3d?it.data3d.saves||0:0);it.data.shares=(it.data1d.shares||0)+(it.data3d?it.data3d.shares||0:0);}}
+  if(!it.link)it.link='';
+  document.getElementById('contentModalTitle').textContent='编辑 \u00b7 '+it.accountName+' \u00b7 '+it.platform+' \u00b7 '+it.date;
   document.getElementById('contentModalBody').innerHTML=
     '<div class="form-grp"><label class="form-lbl">选题大纲</label><textarea class="form-txt" id="edT">'+esc(it.topic)+'</textarea></div>'+
     '<div class="form-grp"><label class="form-lbl">标题</label><input class="form-inp" id="edTi" value="'+esc(it.title)+'"></div>'+
     '<div class="form-grp"><label class="form-lbl">封面</label><input class="form-inp" id="edCv" value="'+esc(it.cover)+'"></div>'+
+    '<div class="form-grp"><label class="form-lbl">发布链接</label><input class="form-inp" id="edLk" value="'+esc(it.link)+'" placeholder="https://..."></div>'+
     '<div class="form-grp"><label class="form-lbl">内容脚本</label><textarea class="form-txt" id="edCt" style="min-height:120px">'+esc(it.content)+'</textarea></div>'+
     '<div class="form-grp"><label class="form-lbl">发布文案</label><textarea class="form-txt" id="edCp" style="min-height:80px">'+esc(it.caption)+'</textarea></div>'+
     '<div class="form-grp"><label class="form-lbl">状态</label><select class="form-sel" id="edSt">'+STATUSES.map(s=>'<option value="'+s+'" '+(it.status===s?'selected':'')+'>'+ST_LABEL[s]+'</option>').join('')+'</select></div>'+
-    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div><label class="form-lbl">1天数据</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">'+['likes','views','comments','saves','shares'].map(k=>'<div><small>'+(k==='likes'?'点赞':k==='views'?'观看':k==='comments'?'评论':k==='saves'?'收藏':'分享')+'</small><input class="form-inp" type="number" id="ed1d'+k+'" value="'+(it.data1d[k]||0)+'"></div>').join('')+'</div></div><div><label class="form-lbl">3天数据</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">'+['likes','views','comments','saves','shares'].map(k=>'<div><small>'+(k==='likes'?'点赞':k==='views'?'观看':k==='comments'?'评论':k==='saves'?'收藏':'分享')+'</small><input class="form-inp" type="number" id="ed3d'+k+'" value="'+(it.data3d[k]||0)+'"></div>').join('')+'</div></div></div>'+
+    '<div><label class="form-lbl">数据统计</label><div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px">'+['likes','views','comments','saves','shares'].map(k=>'<div><small>'+(k==='likes'?'点赞':k==='views'?'观看':k==='comments'?'评论':k==='saves'?'收藏':'分享')+'</small><input class="form-inp" type="number" id="edDt'+k+'" value="'+(it.data[k]||0)+'"></div>').join('')+'</div></div>'+
     '<div class="form-grp mt-8"><label class="form-lbl">数据分析</label><textarea class="form-txt" id="edAn">'+esc(it.analysis)+'</textarea></div>'+
     '<div class="form-grp"><label class="form-lbl">调整建议</label><textarea class="form-txt" id="edAj">'+esc(it.adjustment)+'</textarea></div>'+
     '<div class="form-grp"><label class="form-lbl">需避免问题</label><textarea class="form-txt" id="edAv">'+esc(it.avoid)+'</textarea></div>';
   document.getElementById('contentModal').classList.add('show');
 }
+
 function closeCM(){document.getElementById('contentModal').classList.remove('show');editCid=null;}
 function saveCM(){
   if(!editCid)return;const it=DATA.content.find(c=>c.id===editCid);if(!it)return;
   it.topic=document.getElementById('edT').value;it.title=document.getElementById('edTi').value;
-  it.cover=document.getElementById('edCv').value;it.content=document.getElementById('edCt').value;
+  it.cover=document.getElementById('edCv').value;it.link=document.getElementById('edLk').value;it.content=document.getElementById('edCt').value;
   it.caption=document.getElementById('edCp').value;it.status=document.getElementById('edSt').value;
-  ['likes','views','comments','saves','shares'].forEach(k=>{it.data1d[k]=parseInt(document.getElementById('ed1d'+k).value)||0;it.data3d[k]=parseInt(document.getElementById('ed3d'+k).value)||0;});
+  ['likes','views','comments','saves','shares'].forEach(k=>{it.data[k]=parseInt(document.getElementById('edDt'+k).value)||0;});
   it.analysis=document.getElementById('edAn').value;it.adjustment=document.getElementById('edAj').value;it.avoid=document.getElementById('edAv').value;
   sv();if(it.status==='done'){if(DATA.tasks[it.date]&&DATA.tasks[it.date][it.accountId])DATA.tasks[it.date][it.accountId].checked=true;}closeCM();rct();
 }
@@ -277,14 +317,15 @@ function saveContent(){saveCM();}
 
 // TRACKING
 function rt(){
+  const gd=(c)=>{if(c.data)return c.data;const d={likes:0,views:0,comments:0,saves:0,shares:0};if(c.data1d){d.likes=c.data1d.likes||0;d.views=c.data1d.views||0;d.comments=c.data1d.comments||0;d.saves=c.data1d.saves||0;d.shares=c.data1d.shares||0;}if(c.data3d){d.likes+=c.data3d.likes||0;d.views+=c.data3d.views||0;d.comments+=c.data3d.comments||0;d.saves+=c.data3d.saves||0;d.shares+=c.data3d.shares||0;}return d;};
   let h='<table><thead><tr><th>账号</th><th>总篇数</th><th>已发布</th><th>完成率</th><th>总观看</th><th>总点赞</th><th>总评论</th><th>总收藏</th><th>总分享</th></tr></thead><tbody>';
   ACCOUNTS.forEach(a=>{const it=DATA.content.filter(c=>c.accountId===a.id);const tl=it.length,dn=it.filter(c=>c.status==='done').length;const pct=tl?Math.round(dn/tl*100):0;const cl=ACC_CLR[a.id];
-    const vw=it.reduce((s,c)=>s+(c.data1d.views||0)+(c.data3d.views||0),0),lk=it.reduce((s,c)=>s+(c.data1d.likes||0)+(c.data3d.likes||0),0),cm=it.reduce((s,c)=>s+(c.data1d.comments||0)+(c.data3d.comments||0),0),sv2=it.reduce((s,c)=>s+(c.data1d.saves||0)+(c.data3d.saves||0),0),sh=it.reduce((s,c)=>s+(c.data1d.shares||0)+(c.data3d.shares||0),0);
+    let vw=0,lk=0,cm=0,sv2=0,sh=0;it.forEach(c=>{const d=gd(c);vw+=d.views;lk+=d.likes;cm+=d.comments;sv2+=d.saves;sh+=d.shares;});
     h+='<tr><td style="font-weight:600">'+a.name+'</td><td>'+tl+'</td><td>'+dn+'</td><td><div class="prog-bar" style="height:4px;margin-bottom:2px"><div class="prog-fill" style="width:'+pct+'%;background:'+cl.d+'"></div></div><span class="text-xs">'+pct+'%</span></td><td>'+vw.toLocaleString()+'</td><td>'+lk.toLocaleString()+'</td><td>'+cm.toLocaleString()+'</td><td>'+sv2.toLocaleString()+'</td><td>'+sh.toLocaleString()+'</td></tr>';
   });h+='</tbody></table>';document.getElementById('trackingTable').innerHTML=h;
   const wks=[{l:'第1周(7.1-7.6)',s:1,e:6},{l:'第2周(7.7-7.13)',s:7,e:13},{l:'第3周(7.14-7.20)',s:14,e:20},{l:'第4周(7.21-7.27)',s:21,e:27},{l:'第5周(7.28-7.31)',s:28,e:31}];
   let wh='<table><thead><tr><th>周期</th><th>发布数</th><th>总互动</th><th>最佳内容</th><th>本周总结</th></tr></thead><tbody>';
-  wks.forEach(w=>{const it=DATA.content.filter(c=>{const d=parseInt(c.date.split('-')[2]);return d>=w.s&&d<=w.e;});const dn=it.filter(c=>c.status==='done');const intr=dn.reduce((s,c)=>s+(c.data1d.likes||0)+(c.data1d.comments||0)+(c.data1d.saves||0)+(c.data1d.shares||0),0);wh+='<tr><td>'+w.l+'</td><td>'+dn.length+'/'+it.length+'</td><td>'+intr.toLocaleString()+'</td><td>-</td><td>-</td></tr>';});
+  wks.forEach(w=>{const it=DATA.content.filter(c=>{const d=parseInt(c.date.split('-')[2]);return d>=w.s&&d<=w.e;});const dn=it.filter(c=>c.status==='done');let intr=0;dn.forEach(c=>{const d=gd(c);intr+=d.likes+d.comments+d.saves+d.shares;});wh+='<tr><td>'+w.l+'</td><td>'+dn.length+'/'+it.length+'</td><td>'+intr.toLocaleString()+'</td><td>-</td><td>-</td></tr>';});
   wh+='</tbody></table>';document.getElementById('weeklyTable').innerHTML=wh;
 }
 
