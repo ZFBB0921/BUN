@@ -325,30 +325,46 @@ body{
 .cal-dots{display:flex;gap:2px;margin-top:2px;flex-wrap:wrap;justify-content:center;max-width:40px}
 .cal-dot{width:5px;height:5px;border-radius:50%}
 
-/* Date Tasks */
-.date-task-card{
-  display:flex;border-radius:var(--r-sm);
-  overflow:hidden;transition:all .2s var(--ease-out);
-  margin-bottom:2px;
-}
+
+/* Date task cards - prevent overflow */
+.date-task-card{display:flex;border-radius:var(--r-sm);overflow:hidden;transition:all .2s var(--ease-out);margin-bottom:2px;max-width:100%}
 .date-task-card:hover{background:var(--secondary)}
 .date-task-bar{width:3px;flex-shrink:0}
-.date-task-content{flex:1;min-width:0;padding:12px 14px;display:flex;align-items:center;gap:12px}
-.date-task-info{flex:1;min-width:0}
-.date-task-acc{
-  font-size:12px;font-weight:600;padding:3px 10px;
-  border-radius:var(--r-full);display:inline-block;margin-bottom:4px;
-}
+.date-task-content{flex:1;min-width:0;padding:10px 12px;display:flex;align-items:flex-start;gap:10px;overflow:hidden}
+.date-task-info{flex:1;min-width:0;overflow:hidden}
+.date-task-acc{font-size:12px;font-weight:600;padding:3px 10px;border-radius:var(--r-full);display:inline-block;margin-bottom:4px}
 .date-task-plats{font-size:11px;color:var(--muted)}
 .date-task-empty{text-align:center;padding:32px;color:var(--muted);font-size:13px}
-.date-task-status{
-  flex-shrink:0;display:flex;align-items:center;gap:4px;
-  padding:6px 14px;border-radius:var(--r-full);
-  font-size:11px;font-weight:600;border:none;cursor:pointer;
-  transition:all .2s var(--ease-out);font-family:var(--font);
-}
+.date-task-status{flex-shrink:0;display:flex;align-items:center;gap:4px;padding:6px 14px;border-radius:var(--r-full);font-size:11px;font-weight:600;border:none;cursor:pointer;transition:all .2s var(--ease-out);font-family:var(--font)}
 .date-task-status:hover{filter:brightness(.92);transform:scale(1.03)}
 
+/* Platform rows - fixed width */
+.date-task-platforms{margin-top:6px;max-width:100%;overflow:hidden}
+.date-task-plat-row{display:flex;align-items:center;gap:6px;padding:3px 0;flex-wrap:nowrap;max-width:100%;overflow:hidden}
+.date-task-plat-tag{font-size:10px;font-weight:600;padding:2px 7px;border-radius:var(--r-full);background:var(--secondary);color:var(--fg-soft);white-space:nowrap;flex-shrink:0}
+.date-task-title{font-size:11px;color:var(--muted);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:140px}
+.date-task-status-btn{flex-shrink:0;padding:3px 10px;border-radius:var(--r-full);font-size:10px;font-weight:600;border:none;cursor:pointer;transition:all .2s var(--ease-out);font-family:var(--font)}
+.date-task-status-btn:hover{filter:brightness(.9);transform:scale(1.05)}
+
+/* Mobile overrides for calendar */
+@media(max-width:768px){
+  .date-task-content{padding:8px 10px;gap:6px}
+  .date-task-plat-row{gap:4px}
+  .date-task-plat-tag{font-size:9px;padding:2px 5px}
+  .date-task-title{font-size:10px;max-width:80px}
+  .date-task-status-btn{font-size:9px;padding:2px 7px}
+  .date-task-status{font-size:10px;padding:5px 10px}
+  .upcoming-plats{max-width:100%;overflow:hidden}
+  .upcoming-plat{font-size:9px;padding:2px 6px}
+  .cal-layout{display:flex;flex-direction:column;gap:12px}
+  .cal-layout > div:last-child{width:100%}
+}
+
+@media(max-width:400px){
+  .date-task-plat-row{flex-wrap:wrap;gap:2px}
+  .date-task-title{max-width:60px;font-size:9px}
+  .date-task-plat-tag{font-size:8px}
+}
 /* Upcoming */
 .upcoming-list{border-radius:0 0 var(--r-lg) var(--r-lg);overflow:hidden}
 .upcoming-day{padding:14px 20px;border-bottom:1px solid var(--border);transition:all .2s}
