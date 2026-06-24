@@ -97,7 +97,7 @@ function initFB(){if(window._fbFailed||typeof firebase==="undefined"){ld();syncR
     });
   }
 }
-function ld(){try{const r=localStorage.getItem(STORAGE_KEY);if(r){const p=JSON.parse(r);if(!p.ideas||!p.ideas.length)p.ideas=defData().ideas;if(!p.drafts)p.drafts=[];p.content=p.content.filter(c=>!c.date.startsWith('2025'));p.tasks=Object.fromEntries(Object.entries(p.tasks||{}).filter(([k])=>!k.startsWith('2025')));DATA=p;return;}}catch(e){}DATA=defData();}function refreshUI(){
+function ld(){try{const r=localStorage.getItem(STORAGE_KEY);if(r){const p=JSON.parse(r);if(!p.ideas||!p.ideas.length)p.ideas=defData().ideas;if(!p.drafts)p.drafts=[];DATA=p;return;}}catch(e){}DATA=defData();}function refreshUI(){
   if(curView==='dashboard')rd();else if(curView==='calendar')rc();
   else if(curView==='creation')rct();else if(curView==='drafts')rdf();
   else if(curView==='tracking')rt();else if(curView==='ideas')ri();
