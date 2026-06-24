@@ -191,8 +191,7 @@ function rdt(){
     h+='<div class="date-task-platforms">';
     contents.forEach(ct=>{
       const sc=ST_CLR[ct.status]||ST_CLR.pending;
-      const hasTitle=ct.title?'<span class="date-task-title">'+esc(ct.title).substring(0,24)+(ct.title.length>24?'...':'')+'</span>':'';
-      h+='<div class="date-task-plat-row"><span class="date-task-plat-tag">'+ct.platform+'</span>'+hasTitle+'<button class="date-task-status-btn" style="background:'+sc.bg+';color:'+sc.tx+'" onclick="toggleContentStatus(\''+ct.id+'\')">'+ST_LABEL[ct.status]+'</button></div>';
+      h+='<div class="date-task-plat-row"><span class="date-task-plat-tag">'+ct.platform+'</span><span class="date-task-title">'+(ct.title?esc(ct.title).substring(0,5)+(ct.title.length>5?'...':''):'--')+'</span><button class="date-task-status-btn" style="background:'+sc.bg+';color:'+sc.tx+'" onclick="toggleContentStatus(\''+ct.id+'\')">'+ST_LABEL[ct.status]+'</button></div>'
     });
     h+='</div></div></div>';
   });c.innerHTML=h;
