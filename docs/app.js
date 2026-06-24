@@ -21,9 +21,9 @@ const ACCOUNTS = [
 ];
 
 const ACC_CLR = {
-  'acc-001':{d:'#D4A574',l:'#F5ECD7'},'acc-002':{d:'#B8956A',l:'#EDE0D0'},
-  'acc-003':{d:'#9BA88C',l:'#E1E8DC'},'acc-004':{d:'#D4956A',l:'#F5E5D5'},
-  'acc-005':{d:'#9B8CB4',l:'#E4DCF0'},'acc-006':{d:'#7DA898',l:'#D5E8E0'}
+  'acc-001':{d:'#E8A0B4',l:'#FDE4EA'},'acc-002':{d:'#C9A0A8',l:'#F3E2E6'},
+  'acc-003':{d:'#9EB5A0',l:'#E2EDE3'},'acc-004':{d:'#E0A880',l:'#FAE8D8'},
+  'acc-005':{d:'#A89EC9',l:'#E9E4F8'},'acc-006':{d:'#8EB8A8',l:'#DDEFE8'}
 };
 
 const PLATFORM_ACCOUNTS = {
@@ -38,8 +38,8 @@ const PLATFORM_ACCOUNTS = {
 const STATUSES = ['pending','planning','ready','done'];
 const ST_LABEL = {pending:'未开始',planning:'选题中',ready:'待发布',done:'已发布'};
 const ST_CLR = {
-  pending:{bg:'#F5F5F0',tx:'#9E9E98'},planning:{bg:'#FFF3E0',tx:'#E67E22'},
-  ready:{bg:'#E3F0FF',tx:'#2B7BD6'},done:{bg:'#E8F5E9',tx:'#388E3C'}
+  pending:{bg:'#F2EEF0',tx:'#9E9298'},planning:{bg:'#FEF2E0',tx:'#D4953D'},
+  ready:{bg:'#E3F0FC',tx:'#5B96CC'},done:{bg:'#E2F0E8',tx:'#5EA87A'}
 };
 const NEXT_ST = {pending:'planning',planning:'ready',ready:'done',done:'pending'};
 
