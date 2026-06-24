@@ -183,18 +183,27 @@ function rdt(){
   const dayTs=DATA.tasks[calSel]||{};
   const tAccs=Object.entries(dayTs).map(([id,t])=>{const a=ACCOUNTS.find(ac=>ac.id===id);return a?{...a,status:t.status,checked:t.checked}:null;}).filter(Boolean);
   if(!tAccs.length){c.innerHTML='<div class="date-task-empty">当天无发布任务</div>';return;}
-  let h='';tAccs.forEach(ac=>{
+  let h='';
+  tAccs.forEach(ac=>{
     const cl=ACC_CLR[ac.id];
     const contents=DATA.content.filter(ct=>ct.accountId===ac.id&&ct.date===calSel);
-    h+='<div class="date-task-card"><div class="date-task-bar" style="background:'+cl.d+'"></div><div class="date-task-content">';
-    h+='<div class="date-task-info"><span class="date-task-acc" style="background:'+cl.l+';color:'+cl.d+'">'+ac.name+'</span>';
+    h+='<div class="date-task-card">';
+    h+='<div class="date-task-bar" style="background:'+cl.d+'"></div>';
+    h+='<div class="date-task-content">';
+    h+='<div class="date-task-info">';
+    h+='<span class="date-task-acc" style="background:'+cl.l+';color:'+cl.d+'">'+ac.name+'</span>';
     h+='<div class="date-task-platforms">';
     contents.forEach(ct=>{
       const sc=ST_CLR[ct.status]||ST_CLR.pending;
-      h+='<div class="date-task-plat-row"><span class="date-task-plat-tag">'+ct.platform+'</span><span class="date-task-title">'+(ct.title?esc(ct.title).substring(0,5)+(ct.title.length>5?'...':''):'--')+'</span><button class="date-task-status-btn" style="background:'+sc.bg+';color:'+sc.tx+'" onclick="toggleContentStatus(\''+ct.id+'\')">'+ST_LABEL[ct.status]+'</button></div>'
+      h+='<div class="date-task-plat-row">';
+      h+='<span class="date-task-plat-tag">'+ct.platform+'</span>';
+      h+='<span class="date-task-title">'+(ct.title?esc(ct.title).substring(0,5)+(ct.title.length>5?'...':''):'--')+'</span>';
+      h+='<button class="date-task-status-btn" style="background:'+sc.bg+';color:'+sc.tx+'" onclick="toggleContentStatus(\''+ct.id+'\')">'+ST_LABEL[ct.status]+'</button>';
+      h+='</div>';
     });
     h+='</div></div></div>';
-  });c.innerHTML=h;
+  });
+  c.innerHTML=h;
 }
 function cycSt(dt,id){if(!DATA.tasks[dt]||!DATA.tasks[dt][id])return;DATA.tasks[dt][id].status=NEXT_ST[DATA.tasks[dt][id].status]||'pending';if(DATA.tasks[dt][id].status==='done')DATA.tasks[dt][id].checked=true;save();rc();}
 function toggleContentStatus(cid){
