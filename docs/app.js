@@ -210,7 +210,7 @@ function rct(){
 function openCM(id){editCid=id;const it=DATA.content.find(c=>c.id===id);if(!it)return;
   document.getElementById('contentModalTitle').textContent='编辑 · '+it.accountName+' · '+it.platform+' · '+it.date;
   document.getElementById('contentModalBody').innerHTML=
-
+    '<div class="form-grp"><label class="form-lbl">选题大纲</label><textarea class="form-txt" id="edT">'+esc(it.topic)+'</textarea></div>'+
     '<div class="form-grp"><label class="form-lbl">标题</label><input class="form-inp" id="edTi" value="'+esc(it.title)+'"></div>'+
     '<div class="form-grp"><label class="form-lbl">封面</label><input class="form-inp" id="edCv" value="'+esc(it.cover)+'"></div>'+
     '<div class="form-grp"><label class="form-lbl">内容脚本</label><textarea class="form-txt" id="edCt" style="min-height:120px">'+esc(it.content)+'</textarea></div>'+
