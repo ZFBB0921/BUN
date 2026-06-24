@@ -645,14 +645,84 @@ tr{transition:background .2s}
 @media(max-width:768px){
   .topbar-nav{display:none}.mobile-btn{display:block}
   .mobile-nav.show{display:flex;flex-direction:column}
-  .stat-row{grid-template-columns:1fr}.acc-grid{grid-template-columns:1fr}
+  .stat-row{grid-template-columns:1fr;gap:10px}
+  .acc-grid{grid-template-columns:1fr}
   .cal-layout{grid-template-columns:1fr}
-  .main{padding:16px 12px 40px}
-  .modal-overlay{padding:16px;align-items:flex-start;padding-top:40px}
-  .modal{padding:20px;max-width:100%}
-  .ai-steps{flex-wrap:wrap;border-radius:var(--r);gap:8px;justify-content:center}
+  .main{padding:12px 10px 40px}
+  .modal-overlay{padding:10px;align-items:flex-start;padding-top:20px}
+  .modal{padding:16px;max-width:100%;border-radius:var(--r-lg)}
+  .modal-sticky-top{padding:16px 20px 12px}
+  .modal-scroll{padding:12px 20px}
+  .modal-sticky-bot{padding:12px 20px}
+  .ai-steps{flex-wrap:wrap;border-radius:var(--r);gap:6px;justify-content:center;padding:12px 14px}
   .ai-step-arrow{display:none}
+  .ai-step{font-size:11px}
+  .ai-step .num{width:24px;height:24px;font-size:10px}
+  /* Calendar mobile fixes */
+  .cal-day{font-size:11px;border-radius:var(--r-xs)}
+  .cal-wday{font-size:10px;padding:4px 0}
+  .cal-month{font-size:16px}
+  .cal-grid{gap:2px}
+  .cal-dot{width:3px;height:3px}
+  /* Date task mobile */
+  .date-task-plat-row{gap:4px}
+  .date-task-plat-tag{font-size:9px;padding:2px 6px}
+  .date-task-title{font-size:10px;max-width:100px}
+  .date-task-status-btn{font-size:9px;padding:2px 8px}
+  /* Tables */
+  table{font-size:11px}
+  th,td{padding:8px 10px}
+  .table-wrap{margin:0 -10px;border-radius:0}
+  /* Cards */
+  .card-body{padding:16px}
+  .card-header{padding:14px 16px;font-size:14px}
+  .stat-card{padding:16px 18px}
+  .stat-val{font-size:28px}
+  /* Account cards */
+  .acc-card-body{padding:14px}
+  .acc-card-name{font-size:15px}
+  .circle-prog{width:56px;height:56px}
+  .circle-prog .pct{font-size:12px}
+  /* Plat grid */
+  .plat-grid{grid-template-columns:repeat(2,1fr);gap:8px}
+  .plat-card{padding:14px 12px}
+  .plat-card .plat-name{font-size:14px}
+  .acc-select-grid{grid-template-columns:1fr}
+  .acc-select-card{padding:12px 14px}
+  /* Title / content options */
+  .title-opt{padding:12px 14px;font-size:13px}
+  .content-opt{padding:14px;font-size:12px}
+  /* Ideas */
+  .idea-grid{grid-template-columns:1fr;gap:10px}
+  .idea-card{padding:14px}
+  /* Drafts */
+  .draft-card-body{padding:12px 14px}
+  /* Buttons */
+  .btn{padding:8px 14px;font-size:12px}
+  .btn-sm{padding:5px 10px;font-size:11px}
+  /* Forms */
+  .form-inp,.form-txt,.form-sel{padding:9px 11px;font-size:13px}
+  /* Topbar */
+  .topbar-inner{padding:0 12px;height:50px}
+  .topbar-brand{font-size:15px}
+  .topbar-brand-icon{width:28px;height:28px;font-size:13px}
 }
+
+/* Extra small phones */
+@media(max-width:400px){
+  .cal-grid{gap:1px}
+  .cal-day{font-size:10px}
+  .cal-dots{max-width:30px}
+  .stat-val{font-size:24px}
+  .stat-label{font-size:11px}
+  .acc-grid{grid-template-columns:1fr}
+  .acc-card-row{flex-direction:column;gap:10px}
+  .acc-card-foot{flex-wrap:wrap}
+  .plat-grid{grid-template-columns:1fr 1fr}
+  .date-task-plat-row{flex-direction:column;align-items:flex-start;gap:2px}
+  .date-task-title{max-width:none}
+}
+
 
 /* ═══════ SELECTION ═══════ */
 ::selection{background:rgba(201,168,124,.3);color:var(--fg)}
