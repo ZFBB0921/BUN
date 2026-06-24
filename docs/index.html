@@ -110,6 +110,16 @@
   <div class="flex gap-8" style="justify-content:flex-end"><button class="btn btn-sec" onclick="closeIdeaModal()">取消</button><button class="btn btn-pri" id="ideaSaveBtn" onclick="saveIdea()">保存</button></div>
 </div></div>
 
+
+<!-- Add Content Modal -->
+<div class="modal-overlay" id="addContentModal"><div class="modal" style="max-width:440px">
+  <h3 id="addContentTitle">新增内容</h3>
+  <div class="form-grp"><label class="form-lbl">账号</label><select class="form-sel" id="addAcc" onchange="updateAddPlatforms()"><option value="">请选择账号</option></select></div>
+  <div class="form-grp"><label class="form-lbl">平台</label><select class="form-sel" id="addPlat"><option value="">请先选择账号</option></select></div>
+  <div class="form-grp"><label class="form-lbl">日期</label><input class="form-inp" type="date" id="addDate"></div>
+  <div class="flex mt-16" style="justify-content:flex-end;gap:8px"><button class="btn btn-sec" onclick="closeAddContent()">取消</button><button class="btn btn-pri" onclick="saveAddContent()">保存</button></div>
+</div></div>
+
 <!-- Draft Picker Modal -->
 <div class="modal-overlay" id="draftPicker"><div class="modal" id="draftPickerBody"></div></div>
 

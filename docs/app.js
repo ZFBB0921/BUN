@@ -258,6 +258,7 @@ function rct(){
   fh+='<span class="filter-sep">至</span>';
   fh+='<input class="form-inp filter-inp" type="date" value="'+ctDateTo+'" onchange="ctDateTo=this.value;rct();" placeholder="结束日期">';
   // Clear button
+  fh+='<button class="btn btn-pri btn-sm" onclick="openAddContent()">+ 新增内容</button>';
   fh+='<button class="btn btn-ghost btn-sm filter-clear" onclick="ctFilterAccount=\x27\x27;ctFilterPlatform=\x27\x27;ctDateFrom=\x27\x27;ctDateTo=\x27\x27;rct();">清除筛选</button>';
   fh+='</div>';
   document.getElementById('creationTabs').innerHTML=fh;
@@ -309,7 +310,44 @@ function saveCM(){
   sv();if(it.status==='done'){if(DATA.tasks[it.date]&&DATA.tasks[it.date][it.accountId])DATA.tasks[it.date][it.accountId].checked=true;}closeCM();rct();
 }
 function closeContentModal(){closeCM();}
+
 function saveContent(){saveCM();}
+
+// ── Add new content ──
+function openAddContent(){
+  document.getElementById('addAcc').innerHTML='<option value="">请选择账号</option>'+ACCOUNTS.map(a=>'<option value="'+a.id+'">'+a.name+'</option>').join('');
+  document.getElementById('addPlat').innerHTML='<option value="">请先选择账号</option>';
+  document.getElementById('addDate').value='';
+  document.getElementById('addContentModal').classList.add('show');
+}
+function updateAddPlatforms(){
+  const aid=document.getElementById('addAcc').value;
+  if(!aid){document.getElementById('addPlat').innerHTML='<option value="">请先选择账号</option>';return;}
+  const acc=ACCOUNTS.find(a=>a.id===aid);
+  document.getElementById('addPlat').innerHTML='<option value="">请选择平台</option>'+acc.platforms.map(p=>'<option value="'+p+'">'+p+'</option>').join('');
+}
+function closeAddContent(){document.getElementById('addContentModal').classList.remove('show');}
+function saveAddContent(){
+  const aid=document.getElementById('addAcc').value;
+  const plat=document.getElementById('addPlat').value;
+  const date=document.getElementById('addDate').value;
+  if(!aid||!plat||!date){alert('请填写完整信息');return;}
+  const acc=ACCOUNTS.find(a=>a.id===aid);
+  const newId='c_'+aid+'_'+date+'_'+plat+'_'+Date.now();
+  const day=parseInt(date.split('-')[2]);
+  DATA.content.push({
+    id:newId,accountId:aid,accountName:acc.name,platform:plat,date:date,
+    topic:'',title:'',cover:'待制作',content:'',caption:'',status:'pending',
+    data:{likes:0,views:0,comments:0,saves:0,shares:0},link:'',
+    analysis:'',adjustment:'',avoid:''
+  });
+  // Also add task entry if date in range
+  const dtKey=date;
+  if(!DATA.tasks[dtKey])DATA.tasks[dtKey]={};
+  if(!DATA.tasks[dtKey][aid])DATA.tasks[dtKey][aid]={status:'pending',checked:false};
+  sv();closeAddContent();rct();
+}
+
 
 // TRACKING
 function rt(){
