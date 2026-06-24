@@ -197,7 +197,7 @@ function rdt(){
       h+='<div class="date-task-row">';
       h+='<span class="date-task-plat">'+ct.platform+'</span>';
       h+='<span class="date-task-topic">'+(ct.title?esc(ct.title):'--')+'</span>';
-      h+='<button class="date-task-stbtn" style="background:'+sc.bg+';color:'+sc.tx+'" onclick="toggleContentStatus(\''+ct.id+'\')">'+ST_LABEL[ct.status]+'</button>';
+      h+='<button class="date-task-stbtn" style="background:'+sc.bg+';color:'+sc.tx+'" onclick="toggleContentStatus(\''+ct.id+'\',this)">'+ST_LABEL[ct.status]+'</button>';
       h+='</div>';
     });
     h+='</div></div></div>';
@@ -205,21 +205,20 @@ function rdt(){
   c.innerHTML=h;
 }
 function cycSt(dt,id){if(!DATA.tasks[dt]||!DATA.tasks[dt][id])return;DATA.tasks[dt][id].status=NEXT_ST[DATA.tasks[dt][id].status]||'pending';if(DATA.tasks[dt][id].status==='done')DATA.tasks[dt][id].checked=true;save();rc();}
-function toggleContentStatus(cid){
+function toggleContentStatus(cid,btn){
   const ct=DATA.content.find(c=>c.id===cid);if(!ct)return;
   ct.status=NEXT_ST[ct.status]||'pending';
   if(ct.status==='done'){
     const dt=ct.date;if(DATA.tasks[dt]&&DATA.tasks[dt][ct.accountId])DATA.tasks[dt][ct.accountId].checked=true;
   }
+  // Instantly update the clicked button
+  if(btn){
+    const sc=ST_CLR[ct.status]||ST_CLR.pending;
+    btn.textContent=ST_LABEL[ct.status];
+    btn.style.background=sc.bg;
+    btn.style.color=sc.tx;
+  }
   save();
-  // Instant button feedback
-  const sc2=ST_CLR[ct.status]||ST_CLR.pending;
-  document.querySelectorAll('.date-task-stbtn').forEach(b=>{
-    if(b.getAttribute('onclick')&&b.getAttribute('onclick').indexOf(cid)>=0){
-      b.textContent=ST_LABEL[ct.status];b.style.background=sc2.bg;b.style.color=sc2.tx;
-    }
-  });
-  rct();rdt();
 }
 function rup(){
   const c=document.getElementById('upcomingList');const td7=todayStr();let h='';
