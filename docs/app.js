@@ -1035,20 +1035,31 @@ function deleteAccount(id){
 function renderPlatformOverview(){
   const el=document.getElementById('platformOverview');
   if(!el)return;
+  const defaultPlatforms=['抖音','小红书','B站','闲鱼','电商店铺','小宇宙'];
   let h='<div class="plat-grid">';
   Object.entries(PLATFORM_ACCOUNTS).sort(([a],[b])=>a.localeCompare(b,'zh')).forEach(([pname,accs])=>{
     const isExp=expandedPlatform===pname;
     const accObjs=accs.map(id=>ACCOUNTS.find(a=>a.id===id)).filter(Boolean);
+    const isDefaultPlat=defaultPlatforms.includes(pname);
     h+='<div class="plat-card'+(isExp?' sel':'')+'" onclick="expandedPlatform=expandedPlatform===\''+pname+'\'?null:\''+pname+'\';renderPlatformOverview();" style="cursor:pointer">';
-    h+='<div class="plat-name">'+pname+'</div><div class="plat-count">关联 '+accObjs.length+' 个账号</div>';
+    h+='<div style="display:flex;justify-content:space-between;align-items:flex-start"><div class="plat-name">'+pname+'</div>';
+    if(!isDefaultPlat){
+      h+='<button class="plat-del-btn" onclick="event.stopPropagation();deletePlatform(\''+pname+'\');" title="删除平台"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg></button>';
+    }
+    h+='</div><div class="plat-count">关联 '+accObjs.length+' 个账号</div>';
     if(isExp){
       h+='<div class="plat-acc-list mt-8" onclick="event.stopPropagation()">';
       accObjs.forEach(a=>{
         const cl=ACC_CLR[a.id];
+        const isDefaultAcc=['acc-001','acc-002','acc-003','acc-004','acc-005','acc-006'].includes(a.id);
         h+='<div class="plat-acc-item" style="border-left:3px solid '+cl.d+'">';
-        h+='<div style="font-weight:600;font-size:13px">'+a.name+'</div>';
-        h+='<div style="font-size:11px;color:var(--muted)">'+a.type+' · '+(a.posting==='odd'?'奇数日':'偶数日')+'发布</div>';
-        h+='</div>';
+        h+='<div style="display:flex;justify-content:space-between;align-items:center">';
+        h+='<div><div style="font-weight:600;font-size:13px">'+a.name+'</div>';
+        h+='<div style="font-size:11px;color:var(--muted)">'+a.type+' · '+(a.posting==='odd'?'奇数日':'偶数日')+'发布</div></div>';
+        if(!isDefaultAcc){
+          h+='<button class="plat-del-btn" onclick="event.stopPropagation();deleteAccount(\''+a.id+'\');" title="删除账号"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg></button>';
+        }
+        h+='</div></div>';
       });
       h+='<button class="btn btn-pri btn-sm mt-8" style="width:100%;font-size:12px" onclick="openAddAccountForPlatform(\''+pname+'\');">+ 在此平台添加账号</button>';
       h+='</div>';
@@ -1057,6 +1068,22 @@ function renderPlatformOverview(){
   });
   h+='</div>';
   el.innerHTML=h;
+}
+function deletePlatform(pname){
+  const defaultPlatforms=['抖音','小红书','B站','闲鱼','电商店铺','小宇宙'];
+  if(defaultPlatforms.includes(pname)){alert('默认平台不可删除');return;}
+  const accs=PLATFORM_ACCOUNTS[pname]||[];
+  if(accs.length>0){
+    const names=accs.map(id=>{const a=ACCOUNTS.find(ac=>ac.id===id);return a?a.name:id;}).join('、');
+    if(!confirm('平台「'+pname+'」下还有 '+accs.length+' 个账号（'+names+'），删除平台后这些账号仍会保留但不再关联此平台，确定删除？'))return;
+  }else{
+    if(!confirm('确定删除平台「'+pname+'」？'))return;
+  }
+  delete PLATFORM_ACCOUNTS[pname];
+  savePlatformAccounts();sv();
+  if(expandedPlatform===pname)expandedPlatform=null;
+  renderPlatformOverview();
+  rd();
 }
 function openAddPlatform(){
   const name=prompt('请输入新平台名称（例如：快手、视频号）：');
