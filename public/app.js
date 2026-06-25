@@ -11,7 +11,7 @@ const FB_CONFIG = {
 let db=null,uid=null,syncReady=false,unsub=null;
 const STORAGE_KEY = 'benyin_backup';
 
-const ACCOUNTS = [
+const DEFAULT_ACCOUNTS = [
   { id:'acc-001', name:'本殷', type:'Vlog/氛围感', posting:'odd', postDays:[1,3,5,7,9,11,13,15,17,19,21,23,25,27,29,31], platforms:['抖音','小红书','B站'] },
   { id:'acc-002', name:'BUNIN本殷', type:'好物种草', posting:'even', postDays:[2,4,6,8,10,12,14,16,18,20,22,24,26,28,30], platforms:['抖音','小红书','B站','闲鱼','电商店铺'] },
   { id:'acc-003', name:'殷然说', type:'感悟分享', posting:'odd', postDays:[1,3,5,7,9,11,13,15,17,19,21,23,25,27,29,31], platforms:['抖音','小宇宙'] },
@@ -19,6 +19,11 @@ const ACCOUNTS = [
   { id:'acc-005', name:'本殷视觉', type:'拍摄展示', posting:'odd', postDays:[1,3,5,7,9,11,13,15,17,19,21,23,25,27,29,31], platforms:['抖音','闲鱼'] },
   { id:'acc-006', name:'本殷伴行', type:'服务监督', posting:'even', postDays:[2,4,6,8,10,12,14,16,18,20,22,24,26,28,30], platforms:['闲鱼'] }
 ];
+var ACCOUNTS = (function(){
+  try{var s=localStorage.getItem('customAccounts');if(s){var p=JSON.parse(s);if(Array.isArray(p)&&p.length)return p;}}catch(e){}
+  return JSON.parse(JSON.stringify(DEFAULT_ACCOUNTS));
+})();
+function saveAccounts(){localStorage.setItem('customAccounts',JSON.stringify(ACCOUNTS));}
 
 const ACC_CLR = {
   'acc-001':{d:'#D4A574',l:'#F5ECD7'},'acc-002':{d:'#B8956A',l:'#EDE0D0'},
@@ -26,7 +31,7 @@ const ACC_CLR = {
   'acc-005':{d:'#9B8CB4',l:'#E4DCF0'},'acc-006':{d:'#7DA898',l:'#D5E8E0'}
 };
 
-const PLATFORM_ACCOUNTS = {
+const DEFAULT_PLATFORM_ACCOUNTS = {
   '抖音': ['acc-001','acc-002','acc-003','acc-004','acc-005'],
   '小红书': ['acc-001','acc-002','acc-004'],
   'B站': ['acc-001','acc-002','acc-004'],
@@ -34,6 +39,11 @@ const PLATFORM_ACCOUNTS = {
   '电商店铺': ['acc-002'],
   '小宇宙': ['acc-003']
 };
+var PLATFORM_ACCOUNTS = (function(){
+  try{var s=localStorage.getItem('customPlatformAccounts');if(s){var p=JSON.parse(s);if(p&&typeof p==='object'&&!Array.isArray(p))return p;}}catch(e){}
+  return JSON.parse(JSON.stringify(DEFAULT_PLATFORM_ACCOUNTS));
+})();
+function savePlatformAccounts(){localStorage.setItem('customPlatformAccounts',JSON.stringify(PLATFORM_ACCOUNTS));}
 
 const STATUSES = ['pending','planning','ready','done'];
 const ST_LABEL = {pending:'未开始',planning:'选题中',ready:'待发布',done:'已发布'};
