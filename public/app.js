@@ -104,7 +104,7 @@ function ld(){try{const r=localStorage.getItem(STORAGE_KEY);if(r){const p=JSON.p
   else if(curView==='tracking')rt();else if(curView==='ideas')ri();
 }
 let DATA={tasks:{},content:[],drafts:[],ideas:[],analytics:[],platformUrls:[]},curView='dashboard',curAcc=ACCOUNTS[0].id,editCid=null,editIid=null,calY=2026,calM=7,calSel=null,draftSelId=null;
-let ctFilterPlatform='',ctFilterAccount='',ctDateFrom='',ctDateTo='',wkFilter='',alPage=0,ctPage=0,deleteMode=false;
+let ctFilterPlatform='',ctFilterAccount='',ctDateFrom='',ctDateTo='',wkFilter='',alPage=0,ctPage=0,deleteMode=false,expandedPlatform=null;
 let aiApiKey=localStorage.getItem('deepseek_key')||'';
 let aiStep=0,aiPlatform=null,aiAccount=null,aiTopic='',aiTitles=[],aiSelTitle=-1,aiContents=[],aiSelContent=-1;
 
@@ -134,7 +134,7 @@ function rd(){
     '<div class="stat-card"><div class="stat-val" style="color:#E67E22">'+tc+'</div><div class="stat-label">今日发布任务</div></div>'+
     '<div class="stat-card"><div class="stat-val" style="color:#388E3C">'+doneC+'/'+allC.length+'</div><div class="stat-label">内容完成进度</div></div>'+
     '<div class="stat-card"><div class="stat-val">'+(ttl?Math.round(dn/ttl*100):0)+'%</div><div class="stat-label">总打卡完成率</div></div>';
-  document.getElementById('accCards').innerHTML=ACCOUNTS.map(a=>{
+  renderPlatformOverview();document.getElementById('accCards').innerHTML=ACCOUNTS.map(a=>{
     const cl=ACC_CLR[a.id];const ac=DATA.content.filter(c=>c.accountId===a.id);
     const ad=ac.filter(c=>c.status==='done').length;const pct=ac.length?Math.round(ad/ac.length*100):0;
     const sz=68,sw=5,rd=(sz-sw)/2,cir=2*Math.PI*rd,off=cir-(pct/100)*cir;
@@ -1030,6 +1030,53 @@ function deleteAccount(id){
   alert('账号「'+acc.name+'」已删除');
   rd();rct();initQuickData(true);
 }
+
+// ── Platform Overview ──
+function renderPlatformOverview(){
+  const el=document.getElementById('platformOverview');
+  if(!el)return;
+  let h='<div class="plat-grid">';
+  Object.entries(PLATFORM_ACCOUNTS).sort(([a],[b])=>a.localeCompare(b,'zh')).forEach(([pname,accs])=>{
+    const isExp=expandedPlatform===pname;
+    const accObjs=accs.map(id=>ACCOUNTS.find(a=>a.id===id)).filter(Boolean);
+    h+='<div class="plat-card'+(isExp?' sel':'')+'" onclick="expandedPlatform=expandedPlatform===\''+pname+'\'?null:\''+pname+'\';renderPlatformOverview();" style="cursor:pointer">';
+    h+='<div class="plat-name">'+pname+'</div><div class="plat-count">关联 '+accObjs.length+' 个账号</div>';
+    if(isExp){
+      h+='<div class="plat-acc-list mt-8" onclick="event.stopPropagation()">';
+      accObjs.forEach(a=>{
+        const cl=ACC_CLR[a.id];
+        h+='<div class="plat-acc-item" style="border-left:3px solid '+cl.d+'">';
+        h+='<div style="font-weight:600;font-size:13px">'+a.name+'</div>';
+        h+='<div style="font-size:11px;color:var(--muted)">'+a.type+' · '+(a.posting==='odd'?'奇数日':'偶数日')+'发布</div>';
+        h+='</div>';
+      });
+      h+='<button class="btn btn-pri btn-sm mt-8" style="width:100%;font-size:12px" onclick="openAddAccountForPlatform(\''+pname+'\');">+ 在此平台添加账号</button>';
+      h+='</div>';
+    }
+    h+='</div>';
+  });
+  h+='</div>';
+  el.innerHTML=h;
+}
+function openAddPlatform(){
+  const name=prompt('请输入新平台名称（例如：快手、视频号）：');
+  if(!name||!name.trim())return;
+  const pname=name.trim();
+  if(PLATFORM_ACCOUNTS[pname]){alert('平台「'+pname+'」已存在');return;}
+  PLATFORM_ACCOUNTS[pname]=[];
+  savePlatformAccounts();sv();
+  expandedPlatform=pname;
+  renderPlatformOverview();
+  rd();
+}
+function openAddAccountForPlatform(pname){
+  document.getElementById('newAccName').value='';
+  document.getElementById('newAccType').value='';
+  document.getElementById('newAccPosting').value='odd';
+  document.getElementById('newAccPlatforms').value=pname;
+  document.getElementById('addAccountModal').classList.add('show');
+}
+
 // INIT
 function formatWeekLabel(ws,we){
   const sm=ws.getMonth()+1,sd=ws.getDate(),em=we.getMonth()+1,ed=we.getDate();
