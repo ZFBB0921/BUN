@@ -23,7 +23,7 @@ var ACCOUNTS = (function(){
   try{var s=localStorage.getItem('customAccounts');if(s){var p=JSON.parse(s);if(Array.isArray(p)&&p.length)return p;}}catch(e){}
   return JSON.parse(JSON.stringify(DEFAULT_ACCOUNTS));
 })();
-function saveAccounts(){localStorage.setItem('customAccounts',JSON.stringify(ACCOUNTS));}
+function saveAccounts(){try{if(ACCOUNTS.length<6){console.error('ACCOUNTS too small:',ACCOUNTS.length);alert('警告：账号数据异常（仅剩'+ACCOUNTS.length+'个），已阻止保存以免数据丢失。请刷新页面恢复。');return;}var js=JSON.stringify(ACCOUNTS);localStorage.setItem('customAccounts',js);console.log('saveAccounts OK, count:',ACCOUNTS.length);}catch(e){console.error('saveAccounts failed:',e);alert('保存账号数据失败，请截图联系');}}
 
 const ACC_CLR = {
   'acc-001':{d:'#D4A574',l:'#F5ECD7'},'acc-002':{d:'#B8956A',l:'#EDE0D0'},
@@ -43,7 +43,7 @@ var PLATFORM_ACCOUNTS = (function(){
   try{var s=localStorage.getItem('customPlatformAccounts');if(s){var p=JSON.parse(s);if(p&&typeof p==='object'&&!Array.isArray(p))return p;}}catch(e){}
   return JSON.parse(JSON.stringify(DEFAULT_PLATFORM_ACCOUNTS));
 })();
-function savePlatformAccounts(){localStorage.setItem('customPlatformAccounts',JSON.stringify(PLATFORM_ACCOUNTS));}
+function savePlatformAccounts(){try{var js=JSON.stringify(PLATFORM_ACCOUNTS);localStorage.setItem('customPlatformAccounts',js);console.log('savePlatformAccounts OK, keys:',Object.keys(PLATFORM_ACCOUNTS).join(','));}catch(e){console.error('savePlatformAccounts failed:',e);alert('保存平台数据失败，请截图联系');}}
 
 const STATUSES = ['pending','planning','ready','done'];
 const ST_LABEL = {pending:'未开始',planning:'选题中',ready:'待发布',done:'已发布'};
@@ -1033,12 +1033,17 @@ function deleteAccount(id){
   if(DATA.analytics)DATA.analytics=DATA.analytics.filter(a=>a.accountId!==id);
   if(DATA.platformUrls)DATA.platformUrls=DATA.platformUrls.filter(u=>u.accountId!==id);
   if(DATA.ideas)DATA.ideas=DATA.ideas.filter(i=>i.account!==acc.name);
-  saveAccounts();savePlatformAccounts();sv();
-  deleteMode=false;
-  const dmBtn=document.getElementById('delModeBtn');
-  if(dmBtn){dmBtn.textContent='删除';dmBtn.style.background='';dmBtn.style.color='';}
-  alert('账号「'+acc.name+'」已删除');
-  rd();rct();initQuickData(true);
+  try{
+    saveAccounts();savePlatformAccounts();sv();
+    deleteMode=false;
+    const dmBtn=document.getElementById('delModeBtn');
+    if(dmBtn){dmBtn.textContent='删除';dmBtn.style.background='';dmBtn.style.color='';}
+    alert('账号「'+acc.name+'」已删除');
+    rd();rct();initQuickData(true);
+  }catch(e){
+    console.error('deleteAccount error:',e);
+    alert('删除过程出错: '+e.message+'\n请刷新页面重试。如果数据丢失，请勿操作，联系修复。');
+  }
 }
 
 // ── Platform Overview ──
