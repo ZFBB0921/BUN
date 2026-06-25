@@ -89,10 +89,8 @@ body{
   font-family:var(--font);
   background:var(--bg);
   background-image:
-    radial-gradient(ellipse at 15% 5%, rgba(201,168,124,.06) 0%, transparent 50%),
-    radial-gradient(ellipse at 85% 95%, rgba(142,163,130,.05) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 50%, rgba(143,130,168,.03) 0%, transparent 70%);
-  background-attachment:fixed;
+    radial-gradient(ellipse at 20% 0%, rgba(201,168,124,.08) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 100%, rgba(142,163,130,.06) 0%, transparent 60%);
   color:var(--fg);
   min-height:100vh;
   -webkit-font-smoothing:antialiased;
@@ -151,54 +149,7 @@ body{
 
 /* ═══════ MAIN ═══════ */
 
-/* ═══════ PAGE BACKGROUNDS ================================== */
-#page-dashboard.active{
-  background-image:
-    linear-gradient(rgba(0,0,0,.015) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(0,0,0,.015) 1px,transparent 1px);
-  background-size:60px 60px;
-  -webkit-mask-image:radial-gradient(ellipse at 50% 0%,black 40%,transparent 70%);
-  mask-image:radial-gradient(ellipse at 50% 0%,black 40%,transparent 70%);
-}
-#page-calendar.active{
-  background-image:
-    radial-gradient(ellipse at 30% 20%,rgba(201,168,124,.06) 0%,transparent 60%),
-    radial-gradient(ellipse at 70% 80%,rgba(130,143,168,.04) 0%,transparent 60%);
-}
-#page-creation.active{
-  background-image:linear-gradient(rgba(0,0,0,.012) 1px,transparent 1px);
-  background-size:100% 48px;
-  -webkit-mask-image:linear-gradient(to bottom,black 30%,transparent 90%);
-  mask-image:linear-gradient(to bottom,black 30%,transparent 90%);
-}
-#page-ai.active{
-  background-image:
-    linear-gradient(rgba(110,106,219,.02) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(110,106,219,.02) 1px,transparent 1px);
-  background-size:40px 40px;
-  -webkit-mask-image:radial-gradient(ellipse at 60% 30%,black 30%,transparent 70%);
-  mask-image:radial-gradient(ellipse at 60% 30%,black 30%,transparent 70%);
-}
-#page-drafts.active{
-  background-image:
-    radial-gradient(ellipse at 40% 10%,rgba(61,56,50,.03) 0%,transparent 55%),
-    repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(0,0,0,.008) 39px,rgba(0,0,0,.008) 40px);
-  -webkit-mask-image:linear-gradient(to bottom,black 20%,transparent 85%);
-  mask-image:linear-gradient(to bottom,black 20%,transparent 85%);
-}
-#page-tracking.active{
-  background-image:linear-gradient(90deg,rgba(0,0,0,.01) 1px,transparent 1px);
-  background-size:80px 100%;
-  -webkit-mask-image:linear-gradient(to right,black 10%,transparent 95%);
-  mask-image:linear-gradient(to right,black 10%,transparent 95%);
-}
-#page-ideas.active{
-  background-image:
-    radial-gradient(circle at 20% 30%,rgba(201,168,124,.05) 0%,transparent 40%),
-    radial-gradient(circle at 80% 70%,rgba(130,143,168,.04) 0%,transparent 40%),
-    radial-gradient(circle at 50% 50%,rgba(142,163,130,.03) 0%,transparent 50%);
-}
-.main{max-width:1280px;margin:0 auto;padding:28px 24px 60px}
+/* ═══════ .main{max-width:1280px;margin:0 auto;padding:28px 24px 60px}
 .page{display:none}
 .page.active{display:block;animation:pageIn .4s var(--ease-out)}
 @keyframes pageIn{
