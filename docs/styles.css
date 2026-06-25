@@ -468,6 +468,17 @@ body{
   .viz-controls .form-sel,.viz-controls .form-inp{min-width:90px;font-size:11px}
 }
 
+
+/* Quick data entry */
+.quick-data-row{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+}
+.quick-data-inputs .form-inp{padding:8px 10px;font-size:13px}
+@media(max-width:640px){
+  .quick-data-row{gap:6px}
+  .quick-data-row .form-sel,.quick-data-row .form-inp{min-width:80px;font-size:11px}
+}
+
 /* Upcoming section */
 .upcoming-section{}
 .upcoming-label{font-size:13px;font-weight:700;color:var(--fg-soft);margin-bottom:10px;padding:0 4px}

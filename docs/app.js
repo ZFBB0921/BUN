@@ -51,7 +51,7 @@ function defData(){
   }
   ACCOUNTS.forEach(a=>{a.postDays.forEach(day=>{
     const dt='2026-07-'+String(day).padStart(2,'0');
-    a.platforms.forEach(p=>{d.content.push({id:'c_'+a.id+'_'+day+'_'+p,accountId:a.id,accountName:a.name,platform:p,date:dt,topic:'',title:'',cover:'待制作',content:'',caption:'',status:'pending',data:{likes:0,views:0,comments:0,saves:0,shares:0},link:'',analysis:'',adjustment:'',avoid:''});});
+    a.platforms.forEach(p=>{d.content.push({id:'c_'+a.id+'_'+day+'_'+p,accountId:a.id,accountName:a.name,platform:p,date:dt,topic:'',title:'',cover:'待制作',content:'',caption:'',status:'pending',data:{followers:0,likes:0,views:0},link:'',analysis:'',adjustment:'',avoid:''});});
   });});
   d.ideas=[{id:'i1',account:'本殷',cat:'Vlog日常',desc:'一日品牌主理人工作流记录',plan:'拍摄咖啡-产品检查-会议-收工',priority:'P2',status:'待拍摄'},{id:'i2',account:'BUNIN本殷',cat:'好物种草',desc:'发现小众高级感香薰蜡烛',plan:'特写+场景+音乐+文案',priority:'P1',status:'待选品'},{id:'i3',account:'殷然说',cat:'认知分享',desc:'普通人如何建立个人品牌',plan:'3分钟口播+金句字幕',priority:'P2',status:'待写稿'},{id:'i4',account:'本殷食叙',cat:'美食教程',desc:'给对象做精致晚餐，节假日不去人挤人',plan:'俯拍制作+摆盘+食谱文案',priority:'P1',status:'已生成'},{id:'i5',account:'本殷视觉',cat:'拍摄展示',desc:'香水产品主图拍摄全流程',plan:'布光+参数+对比+成片',priority:'P1',status:'待拍摄'},{id:'i6',account:'本殷伴行',cat:'信息差',desc:'帮粉丝解决AI工具问题',plan:'录屏+常见问题解答',priority:'P2',status:'待准备'},{id:'i7',account:'本殷',cat:'氛围感',desc:'黄昏光影下的日常碎片',plan:'光线-拍摄-Lr调色',priority:'P2',status:'待拍摄'},{id:'i8',account:'BUNIN本殷',cat:'好物种草',desc:'提升幸福感的桌面好物合集',plan:'俯拍+单品+体验',priority:'P1',status:'待选品'},{id:'i9',account:'本殷食叙',cat:'美食分享',desc:'探店小众咖啡馆',plan:'环境-咖啡-甜点-评价',priority:'P1',status:'待探店'}];
   return d;
@@ -274,14 +274,14 @@ function rct(){
   // ── Table ──
   let h='<table><thead><tr><th>日期</th><th>账号</th><th>平台</th><th>选题大纲</th><th>标题</th><th>状态</th><th>总数据</th><th>发布链接</th><th>操作</th></tr></thead><tbody>';
   items.forEach(it=>{const sc=ST_CLR[it.status]||ST_CLR.pending;
-    const dd=it.data||it.data1d||{likes:0,views:0,comments:0,saves:0,shares:0};
-    const tdStr='赞'+dd.likes+' 观'+dd.views+' 评'+(dd.comments||0)+' 藏'+(dd.saves||0)+' 享'+(dd.shares||0);
+    const dd=it.data||it.data1d||{followers:0,likes:0,views:0};
+    const f=(dd.followers||0);const tdStr='粉'+(f>999?(f/1000).toFixed(1)+'k':f)+' 赞'+(dd.likes||0)+' 观'+(dd.views||0);
     h+='<tr><td>'+it.date.slice(5)+'</td><td style="font-weight:500;font-size:12px">'+it.accountName+'</td><td>'+it.platform+'</td><td style="max-width:130px;cursor:pointer;font-size:12px" onclick="openCM(\''+it.id+'\')">'+(it.topic?esc(it.topic).substring(0,28)+(it.topic.length>28?'...':''):'<span style="color:#CCC">点击填写</span>')+'</td><td style="max-width:120px;font-size:12px">'+(it.title?esc(it.title).substring(0,18)+(it.title.length>18?'...':''):'-')+'</td><td><span class="badge" style="background:'+sc.bg+';color:'+sc.tx+'">'+ST_LABEL[it.status]+'</span></td><td style="font-size:11px">'+tdStr+'</td><td style="max-width:150px;font-size:11px">'+(it.link?'<a href="'+esc(it.link)+'" target="_blank" style="color:var(--primary);word-break:break-all">'+esc(it.link).substring(0,28)+'...</a>':'-')+'</td><td style="white-space:nowrap"><button class="btn btn-sec btn-sm" onclick="openCM(\''+it.id+'\')">编辑</button> <button class="btn btn-ghost btn-sm" style="color:#D4A0A0" onclick="deleteContent(\''+it.id+'\')">删除</button></td></tr>';
   });h+='</tbody></table>';document.getElementById('creationTable').innerHTML=h;
 }
 function openCM(id){editCid=id;const it=DATA.content.find(c=>c.id===id);if(!it)return;
   // Ensure unified data field exists (migrate from old format)
-  if(!it.data){it.data={likes:0,views:0,comments:0,saves:0,shares:0};if(it.data1d){it.data.likes=(it.data1d.likes||0)+(it.data3d?it.data3d.likes||0:0);it.data.views=(it.data1d.views||0)+(it.data3d?it.data3d.views||0:0);it.data.comments=(it.data1d.comments||0)+(it.data3d?it.data3d.comments||0:0);it.data.saves=(it.data1d.saves||0)+(it.data3d?it.data3d.saves||0:0);it.data.shares=(it.data1d.shares||0)+(it.data3d?it.data3d.shares||0:0);}}
+  if(!it.data){it.data={followers:0,likes:0,views:0};if(it.data1d){it.data.likes=(it.data1d.likes||0)+(it.data3d?it.data3d.likes||0:0);it.data.views=(it.data1d.views||0)+(it.data3d?it.data3d.views||0:0);}}
   if(!it.link)it.link='';
   document.getElementById('contentModalTitle').textContent='编辑 \u00b7 '+it.accountName+' \u00b7 '+it.platform+' \u00b7 '+it.date;
   document.getElementById('contentModalBody').innerHTML=
@@ -292,7 +292,7 @@ function openCM(id){editCid=id;const it=DATA.content.find(c=>c.id===id);if(!it)r
     '<div class="form-grp"><label class="form-lbl">内容脚本</label><textarea class="form-txt" id="edCt" style="min-height:120px">'+esc(it.content)+'</textarea></div>'+
     '<div class="form-grp"><label class="form-lbl">发布文案</label><textarea class="form-txt" id="edCp" style="min-height:80px">'+esc(it.caption)+'</textarea></div>'+
     '<div class="form-grp"><label class="form-lbl">状态</label><select class="form-sel" id="edSt">'+STATUSES.map(s=>'<option value="'+s+'" '+(it.status===s?'selected':'')+'>'+ST_LABEL[s]+'</option>').join('')+'</select></div>'+
-    '<div><label class="form-lbl">数据统计</label><div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px">'+['likes','views','comments','saves','shares'].map(k=>'<div><small>'+(k==='likes'?'点赞':k==='views'?'观看':k==='comments'?'评论':k==='saves'?'收藏':'分享')+'</small><input class="form-inp" type="number" id="edDt'+k+'" value="'+(it.data[k]||0)+'"></div>').join('')+'</div></div>'+
+    '<div><label class="form-lbl">核心数据</label><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">'+['followers','likes','views'].map(k=>'<div><small>'+(k==='followers'?'粉丝':k==='likes'?'获赞':'观看')+'</small><input class="form-inp" type="number" id="edDt'+k+'" value="'+(it.data[k]||0)+'"></div>').join('')+'</div></div>'+
     '<div class="form-grp mt-8"><label class="form-lbl">数据分析</label><textarea class="form-txt" id="edAn">'+esc(it.analysis)+'</textarea></div>'+
     '<div class="form-grp"><label class="form-lbl">调整建议</label><textarea class="form-txt" id="edAj">'+esc(it.adjustment)+'</textarea></div>'+
     '<div class="form-grp"><label class="form-lbl">需避免问题</label><textarea class="form-txt" id="edAv">'+esc(it.avoid)+'</textarea></div>';
@@ -305,7 +305,7 @@ function saveCM(){
   it.topic=document.getElementById('edT').value;it.title=document.getElementById('edTi').value;
   it.cover=document.getElementById('edCv').value;it.link=document.getElementById('edLk').value;it.content=document.getElementById('edCt').value;
   it.caption=document.getElementById('edCp').value;it.status=document.getElementById('edSt').value;
-  ['likes','views','comments','saves','shares'].forEach(k=>{it.data[k]=parseInt(document.getElementById('edDt'+k).value)||0;});
+  ['followers','likes','views'].forEach(k=>{it.data[k]=parseInt(document.getElementById('edDt'+k).value)||0;});
   it.analysis=document.getElementById('edAn').value;it.adjustment=document.getElementById('edAj').value;it.avoid=document.getElementById('edAv').value;
   sv();if(it.status==='done'){if(DATA.tasks[it.date]&&DATA.tasks[it.date][it.accountId])DATA.tasks[it.date][it.accountId].checked=true;}closeCM();rct();
 }
@@ -346,7 +346,7 @@ function saveAddContent(){
     DATA.content.push({
       id:newId,accountId:aid,accountName:acc.name,platform:p,date:date,
       topic:'',title:'',cover:'待制作',content:'',caption:'',status:'pending',
-      data:{likes:0,views:0,comments:0,saves:0,shares:0},link:'',
+      data:{followers:0,likes:0,views:0},link:'',
       analysis:'',adjustment:'',avoid:''
     });
   });
@@ -359,11 +359,11 @@ function saveAddContent(){
 
 // TRACKING
 function rt(){
-  const gd=(c)=>{if(c.data)return c.data;const d={likes:0,views:0,comments:0,saves:0,shares:0};if(c.data1d){d.likes=c.data1d.likes||0;d.views=c.data1d.views||0;d.comments=c.data1d.comments||0;d.saves=c.data1d.saves||0;d.shares=c.data1d.shares||0;}if(c.data3d){d.likes+=c.data3d.likes||0;d.views+=c.data3d.views||0;d.comments+=c.data3d.comments||0;d.saves+=c.data3d.saves||0;d.shares+=c.data3d.shares||0;}return d;};
-  let h='<table><thead><tr><th>账号</th><th>总篇数</th><th>已发布</th><th>完成率</th><th>总观看</th><th>总点赞</th><th>总评论</th><th>总收藏</th><th>总分享</th></tr></thead><tbody>';
+  const gd=(c)=>{if(c.data)return c.data;const d={followers:0,likes:0,views:0};if(c.data1d){d.likes=c.data1d.likes||0;d.views=c.data1d.views||0;}if(c.data3d){d.likes+=c.data3d.likes||0;d.views+=c.data3d.views||0;}return d;};
+  let h='<table><thead><tr><th>账号</th><th>总篇数</th><th>已发布</th><th>完成率</th><th>粉丝</th><th>总观看</th><th>总点赞</th></tr></thead><tbody>';
   ACCOUNTS.forEach(a=>{const it=DATA.content.filter(c=>c.accountId===a.id);const tl=it.length,dn=it.filter(c=>c.status==='done').length;const pct=tl?Math.round(dn/tl*100):0;const cl=ACC_CLR[a.id];
-    let vw=0,lk=0,cm=0,sv2=0,sh=0;it.forEach(c=>{const d=gd(c);vw+=d.views;lk+=d.likes;cm+=d.comments;sv2+=d.saves;sh+=d.shares;});
-    h+='<tr><td style="font-weight:600">'+a.name+'</td><td>'+tl+'</td><td>'+dn+'</td><td><div class="prog-bar" style="height:4px;margin-bottom:2px"><div class="prog-fill" style="width:'+pct+'%;background:'+cl.d+'"></div></div><span class="text-xs">'+pct+'%</span></td><td>'+vw.toLocaleString()+'</td><td>'+lk.toLocaleString()+'</td><td>'+cm.toLocaleString()+'</td><td>'+sv2.toLocaleString()+'</td><td>'+sh.toLocaleString()+'</td></tr>';
+    let vw=0,lk=0,fl=0;it.forEach(c=>{const d=gd(c);vw+=d.views;lk+=d.likes;fl+=d.followers||0;});
+    h+='<tr><td style="font-weight:600">'+a.name+'</td><td>'+tl+'</td><td>'+dn+'</td><td><div class="prog-bar" style="height:4px;margin-bottom:2px"><div class="prog-fill" style="width:'+pct+'%;background:'+cl.d+'"></div></div><span class="text-xs">'+pct+'%</span></td><td>'+fl.toLocaleString()+'</td><td>'+vw.toLocaleString()+'</td><td>'+lk.toLocaleString()+'</td></tr>';
   });h+='</tbody></table>';document.getElementById('trackingTable').innerHTML=h;
   // ── Dynamic weekly computation ──
   const allDates=[...new Set(DATA.content.map(c=>c.date))].sort();
@@ -391,16 +391,68 @@ function rt(){
     if(wkFilter&&w.start!==wkFilter)return;
     const it=DATA.content.filter(c=>c.date>=w.start&&c.date<=w.end);
     const dn=it.filter(c=>c.status==='done');
-    let intr=0;dn.forEach(c=>{const d=gd(c);intr+=d.likes+d.comments+d.saves+d.shares;});
+    let intr=0;dn.forEach(c=>{const d=gd(c);intr+=d.likes+d.views;});
     wh+='<tr><td>'+w.label+'</td><td>'+dn.length+'/'+it.length+'</td><td>'+intr.toLocaleString()+'</td><td>-</td><td>-</td></tr>';
   });
   wh+='</tbody></table>';document.getElementById('weeklyTable').innerHTML=wh;
-  initVizSelects();rviz();
+  initQuickData();initVizSelects();rviz();
 }
 
 
 // ── Data Visualization ──
 let vizChartLine=null,vizChartBar=null;
+// ── Quick Data Entry ──
+function initQuickData(){
+  const sel=document.getElementById('qdAccount');
+  if(sel.options.length>1)return;
+  sel.innerHTML='<option value="">选择账号</option>'+ACCOUNTS.map(a=>'<option value="'+a.id+'">'+a.name+'</option>').join('');
+}
+function updateQDPlatforms(){
+  const aid=document.getElementById('qdAccount').value;
+  const platSel=document.getElementById('qdPlatform');
+  if(!aid){platSel.innerHTML='<option value="">先选账号</option>';return;}
+  const acc=ACCOUNTS.find(a=>a.id===aid);
+  platSel.innerHTML='<option value="">选择平台</option>'+acc.platforms.map(p=>'<option value="'+p+'">'+p+'</option>').join('');
+}
+function openProfileUrl(){
+  const url=document.getElementById('qdUrl').value.trim();
+  if(!url){alert('请输入主页链接');return;}
+  window.open(url,'_blank');
+}
+function saveQuickData(){
+  const aid=document.getElementById('qdAccount').value;
+  const plat=document.getElementById('qdPlatform').value;
+  if(!aid||!plat){alert('请选择账号和平台');return;}
+  const fl=parseInt(document.getElementById('qdFollowers').value)||0;
+  const lk=parseInt(document.getElementById('qdLikes').value)||0;
+  const vw=parseInt(document.getElementById('qdViews').value)||0;
+  // Find or create a content entry for today
+  const today=new Date().toISOString().split('T')[0];
+  let entry=DATA.content.find(c=>c.accountId===aid&&c.platform===plat&&c.date===today);
+  if(!entry){
+    const acc=ACCOUNTS.find(a=>a.id===aid);
+    entry={
+      id:'qd_'+aid+'_'+today+'_'+plat+'_'+Date.now(),
+      accountId:aid,accountName:acc.name,platform:plat,date:today,
+      topic:'',title:'',cover:'待制作',content:'',caption:'',status:'done',
+      data:{followers:fl,likes:lk,views:vw},link:document.getElementById('qdUrl').value.trim(),
+      analysis:'',adjustment:'',avoid:''
+    };
+    DATA.content.push(entry);
+    if(!DATA.tasks[today])DATA.tasks[today]={};
+    if(!DATA.tasks[today][aid])DATA.tasks[today][aid]={status:'done',checked:true};
+  }else{
+    entry.data={followers:fl,likes:lk,views:vw};
+    entry.link=document.getElementById('qdUrl').value.trim();
+    entry.status='done';
+  }
+  sv();rt();
+  document.getElementById('qdFollowers').value='';
+  document.getElementById('qdLikes').value='';
+  document.getElementById('qdViews').value='';
+  alert('数据已保存！');
+}
+
 function initVizSelects(){
   const accSel=document.getElementById('vizAccount');
   if(accSel.options.length>1)return; // Already initialized
@@ -449,7 +501,7 @@ function rviz(){
   const accLabels=Object.keys(accMap);
   const accValues=Object.values(accMap);
   
-  const metricLabel={views:'观看',likes:'点赞',comments:'评论',saves:'收藏',shares:'分享'}[metric];
+  const metricLabel={followers:'粉丝',views:'观看',likes:'点赞'}[metric];
   const colors=['#3D3832','#C9A87C','#9BA88C','#9B8CB4','#D4956A','#7DA898'];
   
   // Line chart
@@ -718,7 +770,7 @@ function applyDraftToDate(dt){
       id:'from_'+d.id+'_'+dt.slice(8),accountId:d.accountId,accountName:acc.name,platform:d.platform,
       date:dt,topic:d.topic,title:d.title,content:d.content,
       caption:d.caption,cover:'待制作',status:'planning',
-      data:{likes:0,views:0,comments:0,saves:0,shares:0},link:'',
+      data:{followers:0,likes:0,views:0},link:'',
       analysis:'',adjustment:'',avoid:''
     };
     DATA.content.push(entry);

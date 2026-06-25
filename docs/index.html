@@ -86,6 +86,21 @@
 
 <!-- TRACKING -->
 <div class="page" id="page-tracking">
+  <div class="card card-shadow mb-16"><div class="card-header">快捷数据录入</div><div class="card-body">
+    <div class="text-xs text-muted mb-8">填入主页链接后点击打开，对照手动输入三项核心数据</div>
+    <div class="quick-data-row">
+      <select class="form-sel" id="qdAccount" onchange="updateQDPlatforms()" style="min-width:110px"><option value="">选择账号</option></select>
+      <select class="form-sel" id="qdPlatform" style="min-width:100px"><option value="">先选账号</option></select>
+      <input class="form-inp" id="qdUrl" placeholder="主页链接 https://..." style="flex:1;min-width:200px">
+      <button class="btn btn-sec btn-sm" onclick="openProfileUrl()">打开对照</button>
+    </div>
+    <div class="quick-data-inputs" style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">
+      <div style="flex:1;min-width:100px"><small class="text-muted">粉丝数</small><input class="form-inp" type="number" id="qdFollowers" placeholder="0"></div>
+      <div style="flex:1;min-width:100px"><small class="text-muted">获赞数</small><input class="form-inp" type="number" id="qdLikes" placeholder="0"></div>
+      <div style="flex:1;min-width:100px"><small class="text-muted">观看数</small><input class="form-inp" type="number" id="qdViews" placeholder="0"></div>
+      <button class="btn btn-pri btn-sm" onclick="saveQuickData()" style="align-self:flex-end;margin-bottom:1px">保存数据</button>
+    </div>
+  </div></div>
   <div class="card card-shadow mb-16"><div class="card-header">账号数据总览</div><div class="card-body"><div class="table-wrap" id="trackingTable"></div></div></div>
   <div class="card card-shadow"><div class="card-header">每周数据小结</div><div class="card-body"><div class="table-wrap" id="weeklyTable"></div></div></div>
   <div class="card card-shadow mt-16"><div class="card-header">数据可视化</div><div class="card-body">
@@ -96,11 +111,9 @@
       <span class="text-sm text-muted">至</span>
       <input class="form-inp" type="date" id="vizDateTo" onchange="rviz()" style="min-width:130px" placeholder="结束日期">
       <select class="form-sel" id="vizMetric" onchange="rviz()" style="min-width:100px">
+        <option value="followers">粉丝</option>
         <option value="views">观看</option>
         <option value="likes">点赞</option>
-        <option value="comments">评论</option>
-        <option value="saves">收藏</option>
-        <option value="shares">分享</option>
       </select>
     </div>
     <div class="viz-charts">
