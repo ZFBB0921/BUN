@@ -439,6 +439,35 @@ body{
   .filter-clear{margin-left:0;margin-top:2px}
 }
 
+
+/* ═══════ DATA VISUALIZATION ═══════ */
+.viz-controls{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  margin-bottom:20px;padding:12px 16px;
+  background:var(--secondary);border-radius:var(--r);
+}
+.viz-charts{
+  display:grid;grid-template-columns:1fr 1fr;gap:20px;
+}
+.viz-chart-box{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r);padding:16px 20px;
+  box-shadow:var(--shadow-xs);
+  transition:box-shadow .3s;
+}
+.viz-chart-box:hover{box-shadow:var(--shadow-md)}
+.viz-chart-box h4{
+  font-size:13px;font-weight:700;color:var(--fg-soft);
+  margin-bottom:12px;padding-bottom:8px;
+  border-bottom:1px solid var(--border);
+}
+.viz-chart-box canvas{max-height:320px}
+@media(max-width:768px){
+  .viz-charts{grid-template-columns:1fr}
+  .viz-controls{gap:6px;padding:10px 12px}
+  .viz-controls .form-sel,.viz-controls .form-inp{min-width:90px;font-size:11px}
+}
+
 /* Upcoming section */
 .upcoming-section{}
 .upcoming-label{font-size:13px;font-weight:700;color:var(--fg-soft);margin-bottom:10px;padding:0 4px}

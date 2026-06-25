@@ -395,7 +395,118 @@ function rt(){
     wh+='<tr><td>'+w.label+'</td><td>'+dn.length+'/'+it.length+'</td><td>'+intr.toLocaleString()+'</td><td>-</td><td>-</td></tr>';
   });
   wh+='</tbody></table>';document.getElementById('weeklyTable').innerHTML=wh;
+  initVizSelects();rviz();
 }
+
+
+// ── Data Visualization ──
+let vizChartLine=null,vizChartBar=null;
+function initVizSelects(){
+  const accSel=document.getElementById('vizAccount');
+  if(accSel.options.length>1)return; // Already initialized
+  accSel.innerHTML='<option value="">全部账号</option>'+ACCOUNTS.map(a=>'<option value="'+a.id+'">'+a.name+'</option>').join('');
+  const platSel=document.getElementById('vizPlatform');
+  const plats=[...new Set(DATA.content.map(c=>c.platform))].sort();
+  platSel.innerHTML='<option value="">全部平台</option>'+plats.map(p=>'<option value="'+p+'">'+p+'</option>').join('');
+  // Set default date range to first and last content dates
+  const dates=[...new Set(DATA.content.map(c=>c.date))].sort();
+  if(dates.length>0&&!document.getElementById('vizDateFrom').value){
+    document.getElementById('vizDateFrom').value=dates[0];
+    document.getElementById('vizDateTo').value=dates[dates.length-1];
+  }
+}
+function rviz(){
+  if(typeof Chart==="undefined"){setTimeout(rviz,200);return;}
+  const accId=document.getElementById('vizAccount').value;
+  const plat=document.getElementById('vizPlatform').value;
+  const from=document.getElementById('vizDateFrom').value;
+  const to=document.getElementById('vizDateTo').value;
+  const metric=document.getElementById('vizMetric').value;
+  
+  let items=DATA.content.filter(c=>c.status==='done');
+  if(accId) items=items.filter(c=>c.accountId===accId);
+  if(plat) items=items.filter(c=>c.platform===plat);
+  if(from) items=items.filter(c=>c.date>=from);
+  if(to) items=items.filter(c=>c.date<=to);
+  
+  // Aggregate by date
+  const dateMap={};
+  items.forEach(c=>{
+    const v=c.data?c.data[metric]||0:((c.data1d?c.data1d[metric]||0:0)+(c.data3d?c.data3d[metric]||0:0));
+    dateMap[c.date]=(dateMap[c.date]||0)+v;
+  });
+  const dates=Object.keys(dateMap).sort();
+  const values=dates.map(d=>dateMap[d]);
+  const labels=dates.map(d=>d.slice(5));
+  
+  // Aggregate by account
+  const accMap={};
+  items.forEach(c=>{
+    const v=c.data?c.data[metric]||0:((c.data1d?c.data1d[metric]||0:0)+(c.data3d?c.data3d[metric]||0:0));
+    const key=c.accountName;
+    accMap[key]=(accMap[key]||0)+v;
+  });
+  const accLabels=Object.keys(accMap);
+  const accValues=Object.values(accMap);
+  
+  const metricLabel={views:'观看',likes:'点赞',comments:'评论',saves:'收藏',shares:'分享'}[metric];
+  const colors=['#3D3832','#C9A87C','#9BA88C','#9B8CB4','#D4956A','#7DA898'];
+  
+  // Line chart
+  if(vizChartLine) vizChartLine.destroy();
+  const ctx1=document.getElementById('vizLineChart').getContext('2d');
+  vizChartLine=new Chart(ctx1,{
+    type:'line',
+    data:{
+      labels:labels,
+      datasets:[{
+        label:metricLabel+'趋势',
+        data:values,
+        borderColor:'#3D3832',
+        backgroundColor:'rgba(61,56,50,.06)',
+        borderWidth:2.5,
+        pointBackgroundColor:'#3D3832',
+        pointRadius:4,pointHoverRadius:7,
+        tension:.3,fill:true
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:true,
+      animation:{duration:800,easing:'easeInOutQuart'},
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{grid:{display:false},ticks:{font:{size:11}}},
+        y:{beginAtZero:true,grid:{color:'rgba(0,0,0,.05)'},ticks:{font:{size:11}}}
+      }
+    }
+  });
+  
+  // Bar chart
+  if(vizChartBar) vizChartBar.destroy();
+  const ctx2=document.getElementById('vizBarChart').getContext('2d');
+  vizChartBar=new Chart(ctx2,{
+    type:'bar',
+    data:{
+      labels:accLabels,
+      datasets:[{
+        label:metricLabel+'对比',
+        data:accValues,
+        backgroundColor:accLabels.map((_,i)=>colors[i%colors.length]),
+        borderRadius:6,borderSkipped:false
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:true,
+      animation:{duration:800,easing:'easeInOutQuart'},
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{grid:{display:false},ticks:{font:{size:11}}},
+        y:{beginAtZero:true,grid:{color:'rgba(0,0,0,.05)'},ticks:{font:{size:11}}}
+      }
+    }
+  });
+}
+
 
 // AI CREATION WIZARD (DeepSeek)
 function initAIWizard(){aiStep=0;aiPlatform=null;aiAccount=null;aiTopic='';aiTitles=[];aiSelTitle=-1;aiContents=[];aiSelContent=-1;rai();}

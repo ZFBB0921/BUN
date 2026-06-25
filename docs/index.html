@@ -88,6 +88,26 @@
 <div class="page" id="page-tracking">
   <div class="card card-shadow mb-16"><div class="card-header">账号数据总览</div><div class="card-body"><div class="table-wrap" id="trackingTable"></div></div></div>
   <div class="card card-shadow"><div class="card-header">每周数据小结</div><div class="card-body"><div class="table-wrap" id="weeklyTable"></div></div></div>
+  <div class="card card-shadow mt-16"><div class="card-header">数据可视化</div><div class="card-body">
+    <div class="viz-controls">
+      <select class="form-sel" id="vizAccount" onchange="rviz()" style="min-width:110px"><option value="">全部账号</option></select>
+      <select class="form-sel" id="vizPlatform" onchange="rviz()" style="min-width:100px"><option value="">全部平台</option></select>
+      <input class="form-inp" type="date" id="vizDateFrom" onchange="rviz()" style="min-width:130px" placeholder="起始日期">
+      <span class="text-sm text-muted">至</span>
+      <input class="form-inp" type="date" id="vizDateTo" onchange="rviz()" style="min-width:130px" placeholder="结束日期">
+      <select class="form-sel" id="vizMetric" onchange="rviz()" style="min-width:100px">
+        <option value="views">观看</option>
+        <option value="likes">点赞</option>
+        <option value="comments">评论</option>
+        <option value="saves">收藏</option>
+        <option value="shares">分享</option>
+      </select>
+    </div>
+    <div class="viz-charts">
+      <div class="viz-chart-box"><h4>趋势折线图</h4><canvas id="vizLineChart"></canvas></div>
+      <div class="viz-chart-box"><h4>对比柱状图</h4><canvas id="vizBarChart"></canvas></div>
+    </div>
+  </div></div>
 </div>
 
 <!-- IDEAS -->
@@ -130,6 +150,7 @@
   <div class="modal-sticky-bot"><button class="btn btn-sec" onclick="closeContentModal()">取消</button><button class="btn btn-pri" onclick="saveContent()">保存</button></div>
 </div></div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
