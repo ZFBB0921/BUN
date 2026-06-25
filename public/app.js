@@ -1038,8 +1038,10 @@ function deleteAccount(id){
   Object.keys(PLATFORM_ACCOUNTS).forEach(function(p){
     var arr=PLATFORM_ACCOUNTS[p];
     if(!Array.isArray(arr)){console.warn('PLATFORM_ACCOUNTS['+p+'] is not array, fixing');PLATFORM_ACCOUNTS[p]=[];return;}
+    var hadBefore=arr.length;
     PLATFORM_ACCOUNTS[p]=arr.filter(function(aid){return aid!==id;});
-    if(PLATFORM_ACCOUNTS[p].length===0)delete PLATFORM_ACCOUNTS[p];
+    // Only delete platform if it had accounts before AND is now empty
+    if(hadBefore>0 && PLATFORM_ACCOUNTS[p].length===0)delete PLATFORM_ACCOUNTS[p];
   });
   console.log('PLATFORM_ACCOUNTS keys after:',Object.keys(PLATFORM_ACCOUNTS).join(','));
   
