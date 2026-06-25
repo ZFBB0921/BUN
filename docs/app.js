@@ -144,7 +144,7 @@ function rd(){
       '<div class="circle-prog"><svg width="'+sz+'" height="'+sz+'"><circle cx="'+(sz/2)+'" cy="'+(sz/2)+'" r="'+rd+'" class="bg-c" stroke="'+cl.l+'" stroke-width="'+sw+'"/><circle cx="'+(sz/2)+'" cy="'+(sz/2)+'" r="'+rd+'" class="fg-c" stroke="'+cl.d+'" stroke-width="'+sw+'" stroke-dasharray="'+cir+'" stroke-dashoffset="'+off+'"/></svg><div class="pct" style="color:'+cl.d+'">'+pct+'%</div></div></div>'+
       '<div class="acc-card-meta">本月 <strong>'+ad+'/'+ac.length+'</strong> &nbsp;|&nbsp; '+(a.posting==='odd'?'奇数日':'偶数日')+'发布</div>'+
       '<div class="acc-card-foot">'+(isT?'<label class="check-wrap" onclick="tglChk(\''+a.id+'\')"><div class="check-box'+(ch?' on':'')+'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><span class="text-sm'+(ch?' text-muted':'')+'">'+(ch?'已完成':'今日打卡')+'</span></label>':'<span class="text-sm text-muted">今日无任务</span>')+
-      '<button class="btn btn-sec btn-sm ml-auto" onclick="nav(\'ai\');">AI创作</button></div></div></div>';
+      '<button class="btn btn-sec btn-sm ml-auto" onclick="nav(\'ai\');">AI创作</button>'+(a.id.startsWith('acc-')&&parseInt(a.id.split('-')[2])<=6?'':'<button class="btn btn-danger btn-sm" onclick="deleteAccount(\''+a.id+'\');event.stopPropagation();" title="删除账号" style="margin-left:6px;background:#e74c3c;color:#fff;border:none;border-radius:4px;padding:2px 8px;cursor:pointer;font-size:12px">✕</button>')+'</div></div></div>';
   }).join('');
 }
 function tglChk(id){
@@ -987,6 +987,29 @@ function saveNewAccount(){
   saveAccounts();savePlatformAccounts();sv();
   closeAddAccount();
   alert('账号「'+name+'」已添加！');
+  rd();rct();initQuickData(true);
+}
+
+// ── Delete custom account ──
+function deleteAccount(id){
+  const acc=ACCOUNTS.find(a=>a.id===id);
+  if(!acc){alert('账号不存在');return;}
+  const defaultIds=['acc-001','acc-002','acc-003','acc-004','acc-005','acc-006'];
+  if(defaultIds.includes(id)){alert('默认账号不可删除');return;}
+  if(!confirm('确定要删除账号「'+acc.name+'」吗？\n\n该操作会同时删除该账号下的所有内容和任务数据，不可恢复。'))return;
+  ACCOUNTS.splice(ACCOUNTS.findIndex(a=>a.id===id),1);
+  delete ACC_CLR[id];
+  Object.keys(PLATFORM_ACCOUNTS).forEach(p=>{
+    PLATFORM_ACCOUNTS[p]=PLATFORM_ACCOUNTS[p].filter(aid=>aid!==id);
+    if(PLATFORM_ACCOUNTS[p].length===0)delete PLATFORM_ACCOUNTS[p];
+  });
+  Object.keys(DATA.tasks).forEach(dt=>{delete DATA.tasks[dt][id];});
+  DATA.content=DATA.content.filter(c=>c.accountId!==id);
+  if(DATA.analytics)DATA.analytics=DATA.analytics.filter(a=>a.accountId!==id);
+  if(DATA.platformUrls)DATA.platformUrls=DATA.platformUrls.filter(u=>u.accountId!==id);
+  if(DATA.ideas)DATA.ideas=DATA.ideas.filter(i=>i.account!==acc.name);
+  saveAccounts();savePlatformAccounts();sv();
+  alert('账号「'+acc.name+'」已删除');
   rd();rct();initQuickData(true);
 }
 // INIT
