@@ -396,7 +396,7 @@ function rt(){
     wh+='<tr><td>'+w.label+'</td><td>'+dn.length+'/'+it.length+'</td><td>'+intr.toLocaleString()+'</td><td>-</td><td>-</td></tr>';
   });
   wh+='</tbody></table>';document.getElementById('weeklyTable').innerHTML=wh;
-  initQuickData();initVizSelects();rviz();
+  initQuickData();initVizSelects();rviz();renderAnalyticsList();
 }
 
 
@@ -447,6 +447,26 @@ function saveQuickData(){
   document.getElementById('qdLikes').value='';
   document.getElementById('qdViews').value='';
   alert('数据已保存到数据追踪！累计 '+DATA.analytics.length+' 条记录');
+  renderAnalyticsList();
+  rviz();
+}
+
+function renderAnalyticsList(){
+  const el=document.getElementById('analyticsList');
+  if(!el)return;
+  if(!DATA.analytics||!DATA.analytics.length){el.innerHTML='<span class="text-muted">暂无数据，通过上方快捷录入添加</span>';return;}
+  const items=[...DATA.analytics].sort((a,b)=>b.date.localeCompare(a.date)||a.accountName.localeCompare(b.accountName));
+  let h='<table style="font-size:12px"><thead><tr><th>日期</th><th>账号</th><th>平台</th><th>粉丝</th><th>获赞</th><th>观看</th><th>操作</th></tr></thead><tbody>';
+  items.forEach(a=>{
+    h+='<tr><td>'+a.date.slice(5)+'</td><td>'+esc(a.accountName)+'</td><td>'+esc(a.platform)+'</td><td>'+(a.followers||0).toLocaleString()+'</td><td>'+(a.likes||0).toLocaleString()+'</td><td>'+(a.views||0).toLocaleString()+'</td><td><button class="btn btn-ghost btn-xs" style="color:var(--danger)" onclick="deleteAnalytics(\''+a.id+'\')">删除</button></td></tr>';
+  });
+  h+='</tbody></table>';
+  el.innerHTML=h;
+}
+function deleteAnalytics(id){
+  if(!confirm('确定删除这条数据记录？'))return;
+  DATA.analytics=DATA.analytics.filter(a=>a.id!==id);
+  sv();renderAnalyticsList();rviz();
 }
 
 function initVizSelects(){
