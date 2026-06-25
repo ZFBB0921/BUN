@@ -415,7 +415,7 @@ function rt(){
     wh+='<tr><td>'+w.label+'</td><td>'+dn.length+'/'+it.length+'</td><td>'+intr.toLocaleString()+'</td><td>-</td><td>-</td></tr>';
   });
   wh+='</tbody></table>';document.getElementById('weeklyTable').innerHTML=wh;
-  initQuickData();initVizSelects();rviz();renderAnalyticsList();
+  initQuickData(true);initVizSelects();rviz();renderAnalyticsList();
 }
 
 
@@ -437,9 +437,9 @@ function savePlatformUrl(){
   urlInp.style.borderColor='#4caf50';
   setTimeout(()=>{urlInp.style.borderColor='';},1500);
 }
-function initQuickData(){
+function initQuickData(force){
   const sel=document.getElementById('qdAccount');
-  if(sel.options.length>1)return;
+  if(!force&&sel.options.length>1)return;
   sel.innerHTML='<option value="">选择账号</option>'+ACCOUNTS.map(a=>'<option value="'+a.id+'">'+a.name+'</option>').join('');
 }
 function updateQDPlatforms(){
@@ -930,6 +930,65 @@ function saveIdea(){
 }
 function delIdea(id){if(!confirm('确定删除？'))return;DATA.ideas=DATA.ideas.filter(i=>i.id!==id);sv();ri();}
 
+
+// ── Add custom account ──
+const ACC_PALETTE = [
+  {d:'#D4A574',l:'#F5ECD7'},{d:'#B8956A',l:'#EDE0D0'},{d:'#9BA88C',l:'#E1E8DC'},
+  {d:'#D4956A',l:'#F5E5D5'},{d:'#9B8CB4',l:'#E4DCF0'},{d:'#7DA898',l:'#D5E8E0'},
+  {d:'#C97D60',l:'#F2DCD3'},{d:'#6B9E8A',l:'#D8EDE4'},{d:'#8A7EB8',l:'#DFD9EE'},
+  {d:'#B8885E',l:'#EDE0D0'},{d:'#7E9CB8',l:'#D8E5F0'},{d:'#A87DA0',l:'#EBD9E5'}
+];
+function openAddAccount(){
+  document.getElementById('newAccName').value='';
+  document.getElementById('newAccType').value='';
+  document.getElementById('newAccPosting').value='odd';
+  document.getElementById('newAccPlatforms').value='';
+  document.getElementById('addAccountModal').classList.add('show');
+}
+function closeAddAccount(){document.getElementById('addAccountModal').classList.remove('show');}
+function saveNewAccount(){
+  const name=document.getElementById('newAccName').value.trim();
+  const type=document.getElementById('newAccType').value.trim();
+  const posting=document.getElementById('newAccPosting').value;
+  const platformsRaw=document.getElementById('newAccPlatforms').value.trim();
+  if(!name||!type||!platformsRaw){alert('请填写完整信息');return;}
+  const platforms=platformsRaw.split(/[,，\s]+/).filter(Boolean);
+  if(!platforms.length){alert('请至少输入一个平台');return;}
+  const id='acc-'+Date.now().toString(36);
+  const postDays=posting==='odd'?
+    [1,3,5,7,9,11,13,15,17,19,21,23,25,27,29,31]:
+    [2,4,6,8,10,12,14,16,18,20,22,24,26,28,30];
+  const newAcc={id,name,type,posting,postDays,platforms};
+  ACCOUNTS.push(newAcc);
+  // Pick a unique color
+  const usedColors=Object.values(ACC_CLR).map(c=>c.d);
+  const avail=ACC_PALETTE.find(p=>!usedColors.includes(p.d))||ACC_PALETTE[ACCOUNTS.length%ACC_PALETTE.length];
+  ACC_CLR[id]={d:avail.d,l:avail.l};
+  // Add to PLATFORM_ACCOUNTS
+  platforms.forEach(p=>{
+    if(!PLATFORM_ACCOUNTS[p])PLATFORM_ACCOUNTS[p]=[];
+    if(!PLATFORM_ACCOUNTS[p].includes(id))PLATFORM_ACCOUNTS[p].push(id);
+  });
+  // Generate tasks for new account
+  for(let day=1;day<=31;day++){
+    if(!postDays.includes(day))continue;
+    const dt='2026-07-'+String(day).padStart(2,'0');
+    if(!DATA.tasks[dt])DATA.tasks[dt]={};
+    DATA.tasks[dt][id]={status:'pending',checked:false};
+    platforms.forEach(p=>{
+      DATA.content.push({
+        id:'c_'+id+'_'+day+'_'+p+'_'+Date.now()+Math.random().toString(36).slice(2,6),
+        accountId:id,accountName:name,platform:p,date:dt,
+        topic:'',title:'',cover:'待制作',content:'',caption:'',status:'pending',
+        data:{followers:0,likes:0,views:0},link:'',analysis:'',adjustment:'',avoid:''
+      });
+    });
+  }
+  saveAccounts();savePlatformAccounts();sv();
+  closeAddAccount();
+  alert('账号「'+name+'」已添加！');
+  rd();rct();initQuickData(true);
+}
 // INIT
 function formatWeekLabel(ws,we){
   const sm=ws.getMonth()+1,sd=ws.getDate(),em=we.getMonth()+1,ed=we.getDate();

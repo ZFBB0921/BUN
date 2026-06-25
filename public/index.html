@@ -45,7 +45,7 @@
 <!-- DASHBOARD -->
 <div class="page active" id="page-dashboard">
   <div class="stat-row" id="statCards"></div>
-  <div class="card card-shadow"><div class="card-header">账号矩阵</div><div class="card-body"><div class="acc-grid" id="accCards"></div></div></div>
+  <div class="card card-shadow"><div class="card-header" style="display:flex;justify-content:space-between;align-items:center">账号矩阵<button class="btn btn-pri btn-sm" onclick="openAddAccount()" style="font-size:12px;padding:3px 10px">+ 新增账号</button></div><div class="card-body"><div class="acc-grid" id="accCards"></div></div></div>
 </div>
 
 <!-- CALENDAR -->
@@ -145,6 +145,19 @@
   <div class="idea-grid" id="ideaCards"></div>
 </div>
 
+
+<!-- Add Account Modal -->
+<div class="modal-overlay" id="addAccountModal"><div class="modal" style="max-width:420px">
+  <h3>添加新账号</h3>
+  <div class="form-grp"><label class="form-lbl">账号名称</label><input class="form-inp" id="newAccName" placeholder="例如：新账号名"></div>
+  <div class="form-grp"><label class="form-lbl">账号类型</label><input class="form-inp" id="newAccType" placeholder="例如：Vlog/美食"></div>
+  <div class="form-grp"><label class="form-lbl">发布频率</label><select class="form-sel" id="newAccPosting"><option value="odd">奇数日发布</option><option value="even">偶数日发布</option></select></div>
+  <div class="form-grp"><label class="form-lbl">关联平台（用逗号或空格分隔）</label><input class="form-inp" id="newAccPlatforms" placeholder="例如：抖音 小红书 B站"></div>
+  <div class="flex mt-16" style="justify-content:flex-end;gap:8px">
+    <button class="btn btn-sec" onclick="closeAddAccount()">取消</button>
+    <button class="btn btn-pri" onclick="saveNewAccount()">添加账号</button>
+  </div>
+</div></div>
 </main>
 
 <!-- Idea Modal -->
