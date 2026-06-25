@@ -104,7 +104,7 @@ function ld(){try{const r=localStorage.getItem(STORAGE_KEY);if(r){const p=JSON.p
   else if(curView==='tracking')rt();else if(curView==='ideas')ri();
 }
 let DATA={tasks:{},content:[],drafts:[],ideas:[],analytics:[]},curView='dashboard',curAcc=ACCOUNTS[0].id,editCid=null,editIid=null,calY=2026,calM=7,calSel=null,draftSelId=null;
-let ctFilterPlatform='',ctFilterAccount='',ctDateFrom='',ctDateTo='',wkFilter='';
+let ctFilterPlatform='',ctFilterAccount='',ctDateFrom='',ctDateTo='',wkFilter='',alPage=0;
 let aiApiKey=localStorage.getItem('deepseek_key')||'';
 let aiStep=0,aiPlatform=null,aiAccount=null,aiTopic='',aiTitles=[],aiSelTitle=-1,aiContents=[],aiSelContent=-1;
 
@@ -446,27 +446,56 @@ function saveQuickData(){
   document.getElementById('qdFollowers').value='';
   document.getElementById('qdLikes').value='';
   document.getElementById('qdViews').value='';
-  alert('数据已保存到数据追踪！累计 '+DATA.analytics.length+' 条记录');
+  alPage=0;alert('数据已保存！');
   renderAnalyticsList();
   rviz();
 }
 
 function renderAnalyticsList(){
   const el=document.getElementById('analyticsList');
+  const pager=document.getElementById('analyticsPager');
   if(!el)return;
-  if(!DATA.analytics||!DATA.analytics.length){el.innerHTML='<span class="text-muted">暂无数据，通过上方快捷录入添加</span>';return;}
-  const items=[...DATA.analytics].sort((a,b)=>b.date.localeCompare(a.date)||a.accountName.localeCompare(b.accountName));
+  if(!DATA.analytics||!DATA.analytics.length){el.innerHTML='<span class="text-muted">暂无数据</span>';pager.innerHTML='';return;}
+  
+  const dateFrom=document.getElementById('alDateFrom')?.value||'';
+  const dateTo=document.getElementById('alDateTo')?.value||'';
+  
+  let items=[...DATA.analytics];
+  if(dateFrom) items=items.filter(a=>a.date>=dateFrom);
+  if(dateTo) items=items.filter(a=>a.date<=dateTo);
+  items.sort((a,b)=>b.date.localeCompare(a.date)||a.accountName.localeCompare(b.accountName));
+  
+  const total=items.length;
+  const perPage=10;
+  const totalPages=Math.ceil(total/perPage);
+  if(alPage>=totalPages) alPage=Math.max(0,totalPages-1);
+  const start=alPage*perPage;
+  const pageItems=items.slice(start,start+perPage);
+  
+  if(total===0){el.innerHTML='<span class="text-muted">无匹配数据</span>';pager.innerHTML='';return;}
+  
   let h='<table style="font-size:12px"><thead><tr><th>日期</th><th>账号</th><th>平台</th><th>粉丝</th><th>获赞</th><th>观看</th><th>操作</th></tr></thead><tbody>';
-  items.forEach(a=>{
+  pageItems.forEach(a=>{
     h+='<tr><td>'+a.date.slice(5)+'</td><td>'+esc(a.accountName)+'</td><td>'+esc(a.platform)+'</td><td>'+(a.followers||0).toLocaleString()+'</td><td>'+(a.likes||0).toLocaleString()+'</td><td>'+(a.views||0).toLocaleString()+'</td><td><button class="btn btn-ghost btn-xs" style="color:var(--danger)" onclick="deleteAnalytics(\''+a.id+'\')">删除</button></td></tr>';
   });
   h+='</tbody></table>';
   el.innerHTML=h;
+  
+  // Pagination
+  let ph='<span class="text-xs text-muted">共 '+total+' 条</span> ';
+  if(totalPages>1){
+    if(alPage>0) ph+='<button class="btn btn-ghost btn-xs" onclick="alPage=0;renderAnalyticsList();">首页</button> ';
+    if(alPage>0) ph+='<button class="btn btn-ghost btn-xs" onclick="alPage--;renderAnalyticsList();">上一页</button> ';
+    ph+='<span class="text-xs">'+(alPage+1)+'/'+totalPages+'</span> ';
+    if(alPage<totalPages-1) ph+='<button class="btn btn-ghost btn-xs" onclick="alPage++;renderAnalyticsList();">下一页</button> ';
+    if(alPage<totalPages-1) ph+='<button class="btn btn-ghost btn-xs" onclick="alPage='+(totalPages-1)+';renderAnalyticsList();">末页</button>';
+  }
+  pager.innerHTML=ph;
 }
 function deleteAnalytics(id){
   if(!confirm('确定删除这条数据记录？'))return;
   DATA.analytics=DATA.analytics.filter(a=>a.id!==id);
-  sv();renderAnalyticsList();rviz();
+  sv();alPage=0;renderAnalyticsList();rviz();
 }
 
 function initVizSelects(){

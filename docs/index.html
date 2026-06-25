@@ -86,6 +86,11 @@
 
 <!-- TRACKING -->
 <div class="page" id="page-tracking">
+  <!-- 1. 账号数据总览 -->
+  <div class="card card-shadow mb-16"><div class="card-header">账号数据总览</div><div class="card-body"><div class="table-wrap" id="trackingTable"></div></div></div>
+  <!-- 2. 每周数据小结 -->
+  <div class="card card-shadow mb-16"><div class="card-header">每周数据小结</div><div class="card-body"><div class="table-wrap" id="weeklyTable"></div></div></div>
+  <!-- 3. 快捷数据录入 -->
   <div class="card card-shadow mb-16"><div class="card-header">快捷数据录入</div><div class="card-body">
     <div class="text-xs text-muted mb-8">填入主页链接后点击打开，对照手动输入三项核心数据</div>
     <div class="quick-data-row">
@@ -101,10 +106,8 @@
       <button class="btn btn-pri btn-sm" onclick="saveQuickData()" style="align-self:flex-end;margin-bottom:1px">保存数据</button>
     </div>
   </div></div>
-  <div class="card card-shadow mb-16"><div class="card-header">已录入数据 <span class="text-xs text-muted" style="font-weight:400">(可删除错误记录)</span></div><div class="card-body"><div id="analyticsList" class="text-sm text-muted">暂无数据</div></div></div>
-  <div class="card card-shadow mb-16"><div class="card-header">账号数据总览</div><div class="card-body"><div class="table-wrap" id="trackingTable"></div></div></div>
-  <div class="card card-shadow"><div class="card-header">每周数据小结</div><div class="card-body"><div class="table-wrap" id="weeklyTable"></div></div></div>
-  <div class="card card-shadow mt-16"><div class="card-header">数据可视化</div><div class="card-body">
+  <!-- 4. 数据可视化 -->
+  <div class="card card-shadow mb-16"><div class="card-header">数据可视化</div><div class="card-body">
     <div class="viz-controls">
       <select class="form-sel" id="vizAccount" onchange="rviz()" style="min-width:110px"><option value="">全部账号</option></select>
       <select class="form-sel" id="vizPlatform" onchange="rviz()" style="min-width:100px"><option value="">全部平台</option></select>
@@ -122,10 +125,18 @@
       <div class="viz-chart-box"><h4>对比柱状图</h4><canvas id="vizBarChart"></canvas></div>
     </div>
   </div></div>
-</div>
-
-<!-- IDEAS -->
-<div class="page" id="page-ideas">
+  <!-- 5. 已录入数据 -->
+  <div class="card card-shadow mb-16"><div class="card-header">已录入数据</div><div class="card-body">
+    <div class="flex items-center gap-8 mb-8" style="flex-wrap:wrap">
+      <input class="form-inp" type="date" id="alDateFrom" onchange="renderAnalyticsList()" style="min-width:130px" placeholder="起始日期">
+      <span class="text-sm text-muted">至</span>
+      <input class="form-inp" type="date" id="alDateTo" onchange="renderAnalyticsList()" style="min-width:130px" placeholder="结束日期">
+      <button class="btn btn-ghost btn-xs" onclick="document.getElementById('alDateFrom').value='';document.getElementById('alDateTo').value='';renderAnalyticsList();">清除</button>
+    </div>
+    <div id="analyticsList"></div>
+    <div id="analyticsPager" style="margin-top:10px;text-align:center"></div>
+  </div></div>
+</div>id="page-ideas">
   <div class="flex items-center justify-between mb-16"><span style="font-size:18px;font-weight:700">选题灵感库</span><button class="btn btn-pri" onclick="openIdeaModal()">+ 新增灵感</button></div>
   <div class="idea-grid" id="ideaCards"></div>
 </div>
