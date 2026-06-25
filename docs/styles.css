@@ -154,6 +154,77 @@ body::before{
 .mobile-nav a.active{color:var(--fg);font-weight:600;background:var(--secondary)}
 
 /* ═══════ MAIN ═══════ */
+
+/* ═══════ PAGE BACKGROUNDS ═══════ */
+/* Dashboard - structured grid */
+#page-dashboard{position:relative}
+#page-dashboard::before{
+  content:'';position:absolute;inset:0;pointer-events:none;z-index:-1;
+  background-image:
+    linear-gradient(rgba(0,0,0,.015) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,0,0,.015) 1px,transparent 1px);
+  background-size:60px 60px;
+  mask-image:radial-gradient(ellipse at 50% 0%,black 40%,transparent 70%);
+  -webkit-mask-image:radial-gradient(ellipse at 50% 0%,black 40%,transparent 70%);
+}
+/* Calendar - soft warm glow */
+#page-calendar{position:relative}
+#page-calendar::before{
+  content:'';position:absolute;inset:0;pointer-events:none;z-index:-1;
+  background:
+    radial-gradient(ellipse at 30% 20%,rgba(201,168,124,.06) 0%,transparent 60%),
+    radial-gradient(ellipse at 70% 80%,rgba(130,143,168,.04) 0%,transparent 60%);
+}
+/* Content Creation - clean horizontal rhythm */
+#page-creation{position:relative}
+#page-creation::before{
+  content:'';position:absolute;inset:0;pointer-events:none;z-index:-1;
+  background-image:linear-gradient(rgba(0,0,0,.012) 1px,transparent 1px);
+  background-size:100% 48px;
+  mask-image:linear-gradient(to bottom,black 30%,transparent 90%);
+  -webkit-mask-image:linear-gradient(to bottom,black 30%,transparent 90%);
+}
+/* AI Creation - subtle tech mesh */
+#page-ai{position:relative}
+#page-ai::before{
+  content:'';position:absolute;inset:0;pointer-events:none;z-index:-1;
+  background-image:
+    linear-gradient(rgba(110,106,219,.02) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(110,106,219,.02) 1px,transparent 1px);
+  background-size:40px 40px;
+  mask-image:radial-gradient(ellipse at 60% 30%,black 30%,transparent 70%);
+  -webkit-mask-image:radial-gradient(ellipse at 60% 30%,black 30%,transparent 70%);
+}
+/* Drafts - stacked card rhythm */
+#page-drafts{position:relative}
+#page-drafts::before{
+  content:'';position:absolute;inset:0;pointer-events:none;z-index:-1;
+  background:
+    radial-gradient(ellipse at 40% 10%,rgba(61,56,50,.03) 0%,transparent 55%),
+    repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(0,0,0,.008) 39px,rgba(0,0,0,.008) 40px);
+  mask-image:linear-gradient(to bottom,black 20%,transparent 85%);
+  -webkit-mask-image:linear-gradient(to bottom,black 20%,transparent 85%);
+}
+/* Tracking - data dashboard feel */
+#page-tracking{position:relative}
+#page-tracking::before{
+  content:'';position:absolute;inset:0;pointer-events:none;z-index:-1;
+  background-image:
+    linear-gradient(90deg,rgba(0,0,0,.01) 1px,transparent 1px);
+  background-size:80px 100%;
+  mask-image:linear-gradient(to right,black 10%,transparent 95%);
+  -webkit-mask-image:linear-gradient(to right,black 10%,transparent 95%);
+}
+/* Ideas - creative warm glow */
+#page-ideas{position:relative}
+#page-ideas::before{
+  content:'';position:absolute;inset:0;pointer-events:none;z-index:-1;
+  background:
+    radial-gradient(circle at 20% 30%,rgba(201,168,124,.05) 0%,transparent 40%),
+    radial-gradient(circle at 80% 70%,rgba(130,143,168,.04) 0%,transparent 40%),
+    radial-gradient(circle at 50% 50%,rgba(142,163,130,.03) 0%,transparent 50%);
+}
+
 .main{max-width:1280px;margin:0 auto;padding:28px 24px 60px}
 .page{display:none}
 .page.active{display:block;animation:pageIn .4s var(--ease-out)}
