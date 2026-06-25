@@ -87,32 +87,15 @@ html{scroll-behavior:smooth}
 
 body{
   font-family:var(--font);
-  background:var(--bg);
+  background-color:var(--bg);
+  background-image:
+    radial-gradient(ellipse 60% 50% at 5% 0%, rgba(210,180,150,.35) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 40% at 95% 100%, rgba(150,165,185,.25) 0%, transparent 55%),
+    radial-gradient(ellipse 40% 30% at 45% 20%, rgba(255,255,255,.6) 0%, transparent 60%);
   color:var(--fg);
   min-height:100vh;
   -webkit-font-smoothing:antialiased;
   line-height:1.6;
-  position:relative;
-}
-/* Premium layered background */
-body::after{
-  content:'';
-  position:fixed;inset:0;z-index:-1;pointer-events:none;
-  background:
-    /* Top-left warm accent */
-    radial-gradient(ellipse 800px 500px at 10% 0%, rgba(210,180,150,.08) 0%, transparent 100%),
-    /* Bottom-right cool accent */
-    radial-gradient(ellipse 600px 400px at 90% 100%, rgba(160,175,190,.06) 0%, transparent 100%),
-    /* Center subtle bright point */
-    radial-gradient(ellipse 400px 300px at 50% 30%, rgba(255,255,255,.4) 0%, transparent 100%);
-}
-/* Fine texture overlay */
-body::before{
-  content:'';
-  position:fixed;inset:0;z-index:0;pointer-events:none;
-  opacity:.02;
-  background-image:radial-gradient(rgba(0,0,0,.3) .5px,transparent .5px);
-  background-size:4px 4px;
 }
 
 /* ═══════ TOPBAR ═══════ */
