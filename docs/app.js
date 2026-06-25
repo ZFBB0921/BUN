@@ -264,6 +264,7 @@ function rct(){
   fh+='</div>';
   document.getElementById('creationTabs').innerHTML=fh;
 
+  ctPage=0;
   // ── Filter + Sort ──
   let items=DATA.content.slice();
   if(ctFilterAccount) items=items.filter(c=>c.accountId===ctFilterAccount);
@@ -272,9 +273,27 @@ function rct(){
   if(ctDateTo) items=items.filter(c=>c.date<=ctDateTo);
   items.sort((a,b)=>a.date.localeCompare(b.date)||a.platform.localeCompare(b.platform)||a.accountName.localeCompare(b.accountName));
 
+  // ── Pagination ──
+  const perPage=20;
+  const totalPages=Math.ceil(items.length/perPage);
+  if(ctPage>=totalPages) ctPage=Math.max(0,totalPages-1);
+  const pageItems=items.slice(ctPage*perPage,(ctPage+1)*perPage);
+  
   // ── Table ──
-  let h='<table><thead><tr><th>日期</th><th>账号</th><th>平台</th><th>选题大纲</th><th>标题</th><th>状态</th><th>总数据</th><th>发布链接</th><th>操作</th></tr></thead><tbody>';
-  items.forEach(it=>{const sc=ST_CLR[it.status]||ST_CLR.pending;
+  let h='';
+  if(items.length>perPage){
+    h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">';
+    h+='<span class="text-xs text-muted">共 '+items.length+' 条</span>';
+    h+='<div class="flex gap-8">';
+    if(ctPage>0) h+='<button class="btn btn-ghost btn-xs" onclick="ctPage=0;rct();">首页</button>';
+    if(ctPage>0) h+='<button class="btn btn-ghost btn-xs" onclick="ctPage--;rct();">上一页</button>';
+    h+='<span class="text-xs" style="padding:4px 8px">'+(ctPage+1)+'/'+totalPages+'</span>';
+    if(ctPage<totalPages-1) h+='<button class="btn btn-ghost btn-xs" onclick="ctPage++;rct();">下一页</button>';
+    if(ctPage<totalPages-1) h+='<button class="btn btn-ghost btn-xs" onclick="ctPage='+(totalPages-1)+';rct();">末页</button>';
+    h+='</div></div>';
+  }
+  h+='<table><thead><tr><th>日期</th><th>账号</th><th>平台</th><th>选题大纲</th><th>标题</th><th>状态</th><th>总数据</th><th>发布链接</th><th>操作</th></tr></thead><tbody>';
+  pageItems.forEach(it=>{const sc=ST_CLR[it.status]||ST_CLR.pending;
     const dd=it.data||it.data1d||{followers:0,likes:0,views:0};
     const f=(dd.followers||0);const tdStr='粉'+(f>999?(f/1000).toFixed(1)+'k':f)+' 赞'+(dd.likes||0)+' 观'+(dd.views||0);
     h+='<tr><td>'+it.date.slice(5)+'</td><td style="font-weight:500;font-size:12px">'+it.accountName+'</td><td>'+it.platform+'</td><td style="max-width:130px;cursor:pointer;font-size:12px" onclick="openCM(\''+it.id+'\')">'+(it.topic?esc(it.topic).substring(0,28)+(it.topic.length>28?'...':''):'<span style="color:#CCC">点击填写</span>')+'</td><td style="max-width:120px;font-size:12px">'+(it.title?esc(it.title).substring(0,18)+(it.title.length>18?'...':''):'-')+'</td><td><span class="badge" style="background:'+sc.bg+';color:'+sc.tx+'">'+ST_LABEL[it.status]+'</span></td><td style="font-size:11px">'+tdStr+'</td><td style="max-width:150px;font-size:11px">'+(it.link?'<a href="'+esc(it.link)+'" target="_blank" style="color:var(--primary);word-break:break-all">'+esc(it.link).substring(0,28)+'...</a>':'-')+'</td><td style="white-space:nowrap"><button class="btn btn-sec btn-sm" onclick="openCM(\''+it.id+'\')">编辑</button> <button class="btn btn-ghost btn-sm" style="color:#D4A0A0" onclick="deleteContent(\''+it.id+'\')">删除</button></td></tr>';
