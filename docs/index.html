@@ -45,7 +45,7 @@
 <!-- DASHBOARD -->
 <div class="page active" id="page-dashboard">
   <div class="stat-row" id="statCards"></div>
-  <div class="card card-shadow"><div class="card-header" style="display:flex;justify-content:space-between;align-items:center">账号矩阵<button class="btn btn-pri btn-sm" onclick="openAddAccount()" style="font-size:12px;padding:3px 10px">+ 新增账号</button><button class="btn btn-del-mode btn-sm" id="delModeBtn" onclick="toggleDeleteMode()" style="font-size:12px;padding:3px 10px">删除</button></div><div class="card-body"><div class="acc-grid" id="accCards"></div></div></div>
+  <div class="card card-shadow"><div class="card-header" style="display:flex;justify-content:space-between;align-items:center"><span>账号矩阵</span><div style="display:flex;gap:8px"><button class="btn btn-pri btn-sm" onclick="openAddAccount()" style="font-size:12px;padding:3px 10px">+ 新增账号</button><button class="btn btn-del-mode btn-sm" id="delModeBtn" onclick="toggleDeleteMode()" style="font-size:12px;padding:3px 10px">删除</button></div></div><div class="card-body"><div class="acc-grid" id="accCards"></div></div></div>
 </div>
 
 <!-- CALENDAR -->
@@ -144,6 +144,7 @@
   <div class="flex items-center justify-between mb-16"><span style="font-size:18px;font-weight:700">选题灵感库</span><button class="btn btn-pri" onclick="openIdeaModal()">+ 新增灵感</button></div>
   <div class="idea-grid" id="ideaCards"></div>
 </div>
+</main>
 
 
 <!-- Add Account Modal -->
@@ -158,8 +159,6 @@
     <button class="btn btn-pri" onclick="saveNewAccount()">添加账号</button>
   </div>
 </div></div>
-</main>
-
 <!-- Idea Modal -->
 <div class="modal-overlay" id="ideaModal"><div class="modal">
   <h3 id="ideaModalTitle">新增灵感</h3>
