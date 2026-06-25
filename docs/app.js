@@ -104,7 +104,7 @@ function ld(){try{const r=localStorage.getItem(STORAGE_KEY);if(r){const p=JSON.p
   else if(curView==='tracking')rt();else if(curView==='ideas')ri();
 }
 let DATA={tasks:{},content:[],drafts:[],ideas:[],analytics:[]},curView='dashboard',curAcc=ACCOUNTS[0].id,editCid=null,editIid=null,calY=2026,calM=7,calSel=null,draftSelId=null;
-let ctFilterPlatform='',ctFilterAccount='',ctDateFrom='',ctDateTo='',wkFilter='',alPage=0;
+let ctFilterPlatform='',ctFilterAccount='',ctDateFrom='',ctDateTo='',wkFilter='',alPage=0,ctPage=0;
 let aiApiKey=localStorage.getItem('deepseek_key')||'';
 let aiStep=0,aiPlatform=null,aiAccount=null,aiTopic='',aiTitles=[],aiSelTitle=-1,aiContents=[],aiSelContent=-1;
 
