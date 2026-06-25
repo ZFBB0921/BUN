@@ -242,7 +242,7 @@ function rup(){
 function rct(){
   // ── Unified filter bar ──
   const allPlats=[...new Set(DATA.content.map(c=>c.platform))].sort();
-  let fh='<div class="filter-bar">';
+  let fh='<div class="filter-bar"><span style="font-size:13px;font-weight:600;color:var(--fg-soft);margin-right:4px;display:flex;align-items:center;gap:4px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>筛选</span>';
   // Account dropdown
   fh+='<select class="form-sel filter-sel" onchange="ctFilterAccount=this.value;rct();">';
   fh+='<option value="">全部账号</option>';
@@ -258,7 +258,7 @@ function rct(){
   fh+='<span class="filter-sep">至</span>';
   fh+='<input class="form-inp filter-inp" type="date" value="'+ctDateTo+'" onchange="ctDateTo=this.value;rct();" placeholder="结束日期">';
   // Clear button
-  fh+='<button class="btn btn-pri btn-sm" onclick="openAddContent()">+ 新增内容</button>';
+  fh+='<button class="btn btn-pri btn-sm" style="margin-left:4px" onclick="openAddContent()">+ 新增</button>';
   fh+='<button class="btn btn-ghost btn-sm filter-clear" onclick="ctFilterAccount=\x27\x27;ctFilterPlatform=\x27\x27;ctDateFrom=\x27\x27;ctDateTo=\x27\x27;rct();">清除筛选</button>';
   fh+='</div>';
   document.getElementById('creationTabs').innerHTML=fh;
