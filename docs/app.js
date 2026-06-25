@@ -149,6 +149,21 @@ function rd(){
     '<div class="stat-card"><div class="stat-val" style="color:#E67E22">'+tc+'</div><div class="stat-label">今日发布任务</div></div>'+
     '<div class="stat-card"><div class="stat-val" style="color:#388E3C">'+doneC+'/'+allC.length+'</div><div class="stat-label">内容完成进度</div></div>'+
     '<div class="stat-card"><div class="stat-val">'+(ttl?Math.round(dn/ttl*100):0)+'%</div><div class="stat-label">总打卡完成率</div></div>';
+  // Today progress bar
+  var todayContent=DATA.content.filter(function(c){return c.date===td;});
+  var todayDone=todayContent.filter(function(c){return c.status==='done';}).length;
+  var todayTotal=todayContent.length;
+  var todayPct=todayTotal?Math.round(todayDone/todayTotal*100):0;
+  var todayMsg='';
+  if(todayTotal===0)todayMsg='今日暂无发布任务';
+  else if(todayPct===100)todayMsg='全部完成！';
+  else todayMsg='已完成 '+todayDone+'/'+todayTotal;
+  var barColor=todayPct===100?'#27ae60':todayPct>=50?'#f39c12':'#e74c3c';
+  var animClass=todayPct===100?' prog-done':'';
+  document.getElementById('todayProgressBar').innerHTML=
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-weight:600;font-size:14px">今日进度</span><span style="font-size:13px;color:var(--muted)">'+todayMsg+'</span></div>'+
+    '<div class="prog-track"><div class="prog-fill'+animClass+'" style="width:'+todayPct+'%;background:'+barColor+'"></div></div>'+
+    '<div style="text-align:right;font-size:20px;font-weight:700;margin-top:2px;color:'+barColor+'">'+todayPct+'%</div>';
   renderPlatformOverview();document.getElementById('accCards').innerHTML=ACCOUNTS.map(a=>{
     const cl=ACC_CLR[a.id];const ac=DATA.content.filter(c=>c.accountId===a.id);
     const ad=ac.filter(c=>c.status==='done').length;const pct=ac.length?Math.round(ad/ac.length*100):0;
