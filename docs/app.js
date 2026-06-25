@@ -53,6 +53,7 @@ function defData(){
     const dt='2026-07-'+String(day).padStart(2,'0');
     a.platforms.forEach(p=>{d.content.push({id:'c_'+a.id+'_'+day+'_'+p,accountId:a.id,accountName:a.name,platform:p,date:dt,topic:'',title:'',cover:'待制作',content:'',caption:'',status:'pending',data:{followers:0,likes:0,views:0},link:'',analysis:'',adjustment:'',avoid:''});});
   });});
+  d.analytics=[];
   d.ideas=[{id:'i1',account:'本殷',cat:'Vlog日常',desc:'一日品牌主理人工作流记录',plan:'拍摄咖啡-产品检查-会议-收工',priority:'P2',status:'待拍摄'},{id:'i2',account:'BUNIN本殷',cat:'好物种草',desc:'发现小众高级感香薰蜡烛',plan:'特写+场景+音乐+文案',priority:'P1',status:'待选品'},{id:'i3',account:'殷然说',cat:'认知分享',desc:'普通人如何建立个人品牌',plan:'3分钟口播+金句字幕',priority:'P2',status:'待写稿'},{id:'i4',account:'本殷食叙',cat:'美食教程',desc:'给对象做精致晚餐，节假日不去人挤人',plan:'俯拍制作+摆盘+食谱文案',priority:'P1',status:'已生成'},{id:'i5',account:'本殷视觉',cat:'拍摄展示',desc:'香水产品主图拍摄全流程',plan:'布光+参数+对比+成片',priority:'P1',status:'待拍摄'},{id:'i6',account:'本殷伴行',cat:'信息差',desc:'帮粉丝解决AI工具问题',plan:'录屏+常见问题解答',priority:'P2',status:'待准备'},{id:'i7',account:'本殷',cat:'氛围感',desc:'黄昏光影下的日常碎片',plan:'光线-拍摄-Lr调色',priority:'P2',status:'待拍摄'},{id:'i8',account:'BUNIN本殷',cat:'好物种草',desc:'提升幸福感的桌面好物合集',plan:'俯拍+单品+体验',priority:'P1',status:'待选品'},{id:'i9',account:'本殷食叙',cat:'美食分享',desc:'探店小众咖啡馆',plan:'环境-咖啡-甜点-评价',priority:'P1',status:'待探店'}];
   return d;
 }
@@ -89,7 +90,7 @@ function initFB(){if(window._fbFailed||typeof firebase==="undefined"){ld();syncR
   try{localStorage.setItem(STORAGE_KEY,JSON.stringify(DATA));}catch(e){}
   if(db){
     db.collection('app_data').doc('main').set({
-      tasks:DATA.tasks,content:DATA.content,drafts:DATA.drafts,ideas:DATA.ideas,_ut:DATA._ut
+      tasks:DATA.tasks,content:DATA.content,drafts:DATA.drafts,ideas:DATA.ideas,analytics:DATA.analytics,_ut:DATA._ut
     },{merge:true}).then(()=>{
       const el=document.getElementById('syncStatus');if(el){el.textContent='● 已同步';el.style.color='var(--success)';}
     }).catch(()=>{
@@ -97,12 +98,12 @@ function initFB(){if(window._fbFailed||typeof firebase==="undefined"){ld();syncR
     });
   }
 }
-function ld(){try{const r=localStorage.getItem(STORAGE_KEY);if(r){const p=JSON.parse(r);if(!p.ideas||!p.ideas.length)p.ideas=defData().ideas;if(!p.drafts)p.drafts=[];DATA=p;return;}}catch(e){}DATA=defData();}function refreshUI(){
+function ld(){try{const r=localStorage.getItem(STORAGE_KEY);if(r){const p=JSON.parse(r);if(!p.ideas||!p.ideas.length)p.ideas=defData().ideas;if(!p.drafts)p.drafts=[];if(!p.analytics)p.analytics=[];DATA=p;return;}}catch(e){}DATA=defData();}function refreshUI(){
   if(curView==='dashboard')rd();else if(curView==='calendar')rc();
   else if(curView==='creation')rct();else if(curView==='drafts')rdf();
   else if(curView==='tracking')rt();else if(curView==='ideas')ri();
 }
-let DATA={tasks:{},content:[],drafts:[],ideas:[]},curView='dashboard',curAcc=ACCOUNTS[0].id,editCid=null,editIid=null,calY=2026,calM=7,calSel=null,draftSelId=null;
+let DATA={tasks:{},content:[],drafts:[],ideas:[],analytics:[]},curView='dashboard',curAcc=ACCOUNTS[0].id,editCid=null,editIid=null,calY=2026,calM=7,calSel=null,draftSelId=null;
 let ctFilterPlatform='',ctFilterAccount='',ctDateFrom='',ctDateTo='',wkFilter='';
 let aiApiKey=localStorage.getItem('deepseek_key')||'';
 let aiStep=0,aiPlatform=null,aiAccount=null,aiTopic='',aiTitles=[],aiSelTitle=-1,aiContents=[],aiSelContent=-1;
@@ -426,31 +427,26 @@ function saveQuickData(){
   const fl=parseInt(document.getElementById('qdFollowers').value)||0;
   const lk=parseInt(document.getElementById('qdLikes').value)||0;
   const vw=parseInt(document.getElementById('qdViews').value)||0;
-  // Find or create a content entry for today
   const today=new Date().toISOString().split('T')[0];
-  let entry=DATA.content.find(c=>c.accountId===aid&&c.platform===plat&&c.date===today);
-  if(!entry){
-    const acc=ACCOUNTS.find(a=>a.id===aid);
-    entry={
-      id:'qd_'+aid+'_'+today+'_'+plat+'_'+Date.now(),
-      accountId:aid,accountName:acc.name,platform:plat,date:today,
-      topic:'',title:'',cover:'待制作',content:'',caption:'',status:'done',
-      data:{followers:fl,likes:lk,views:vw},link:document.getElementById('qdUrl').value.trim(),
-      analysis:'',adjustment:'',avoid:''
-    };
-    DATA.content.push(entry);
-    if(!DATA.tasks[today])DATA.tasks[today]={};
-    if(!DATA.tasks[today][aid])DATA.tasks[today][aid]={status:'done',checked:true};
+  const acc=ACCOUNTS.find(a=>a.id===aid);
+  // Upsert analytics entry
+  let entry=DATA.analytics.find(a=>a.accountId===aid&&a.platform===plat&&a.date===today);
+  if(entry){
+    entry.followers=fl;entry.likes=lk;entry.views=vw;
+    entry.url=document.getElementById('qdUrl').value.trim();
   }else{
-    entry.data={followers:fl,likes:lk,views:vw};
-    entry.link=document.getElementById('qdUrl').value.trim();
-    entry.status='done';
+    DATA.analytics.push({
+      id:'an_'+aid+'_'+today+'_'+plat,
+      accountId:aid,accountName:acc.name,platform:plat,date:today,
+      followers:fl,likes:lk,views:vw,
+      url:document.getElementById('qdUrl').value.trim()
+    });
   }
   sv();rt();
   document.getElementById('qdFollowers').value='';
   document.getElementById('qdLikes').value='';
   document.getElementById('qdViews').value='';
-  alert('数据已保存！');
+  alert('数据已保存到数据追踪！累计 '+DATA.analytics.length+' 条记录');
 }
 
 function initVizSelects(){
@@ -461,7 +457,7 @@ function initVizSelects(){
   const plats=[...new Set(DATA.content.map(c=>c.platform))].sort();
   platSel.innerHTML='<option value="">全部平台</option>'+plats.map(p=>'<option value="'+p+'">'+p+'</option>').join('');
   // Set default date range to first and last content dates
-  const dates=[...new Set(DATA.content.map(c=>c.date))].sort();
+  const allDates=[...new Set([...DATA.content.map(c=>c.date),...DATA.analytics.map(a=>a.date)])].sort();const dates=allDates;
   if(dates.length>0&&!document.getElementById('vizDateFrom').value){
     document.getElementById('vizDateFrom').value=dates[0];
     document.getElementById('vizDateTo').value=dates[dates.length-1];
@@ -475,17 +471,18 @@ function rviz(){
   const to=document.getElementById('vizDateTo').value;
   const metric=document.getElementById('vizMetric').value;
   
-  let items=DATA.content.filter(c=>c.status==='done');
+  // Use analytics data
+  let items=DATA.analytics.slice();
   if(accId) items=items.filter(c=>c.accountId===accId);
   if(plat) items=items.filter(c=>c.platform===plat);
   if(from) items=items.filter(c=>c.date>=from);
   if(to) items=items.filter(c=>c.date<=to);
+  items.sort((a,b)=>a.date.localeCompare(b.date));
   
   // Aggregate by date
   const dateMap={};
   items.forEach(c=>{
-    const v=c.data?c.data[metric]||0:((c.data1d?c.data1d[metric]||0:0)+(c.data3d?c.data3d[metric]||0:0));
-    dateMap[c.date]=(dateMap[c.date]||0)+v;
+    dateMap[c.date]=(dateMap[c.date]||0)+(c[metric]||0);
   });
   const dates=Object.keys(dateMap).sort();
   const values=dates.map(d=>dateMap[d]);
@@ -494,9 +491,7 @@ function rviz(){
   // Aggregate by account
   const accMap={};
   items.forEach(c=>{
-    const v=c.data?c.data[metric]||0:((c.data1d?c.data1d[metric]||0:0)+(c.data3d?c.data3d[metric]||0:0));
-    const key=c.accountName;
-    accMap[key]=(accMap[key]||0)+v;
+    accMap[c.accountName]=(accMap[c.accountName]||0)+(c[metric]||0);
   });
   const accLabels=Object.keys(accMap);
   const accValues=Object.values(accMap);
@@ -504,10 +499,16 @@ function rviz(){
   const metricLabel={followers:'粉丝',views:'观看',likes:'点赞'}[metric];
   const colors=['#3D3832','#C9A87C','#9BA88C','#9B8CB4','#D4956A','#7DA898'];
   
-  // Line chart
   if(vizChartLine){vizChartLine.destroy();vizChartLine=null;}
   if(vizChartBar){vizChartBar.destroy();vizChartBar=null;}
-  if(labels.length===0){return;}
+  if(labels.length===0){
+    document.getElementById('vizLineChart').style.display='none';
+    document.getElementById('vizBarChart').style.display='none';
+    return;
+  }
+  document.getElementById('vizLineChart').style.display='';
+  document.getElementById('vizBarChart').style.display='';
+  
   const ctx1=document.getElementById('vizLineChart').getContext('2d');
   vizChartLine=new Chart(ctx1,{
     type:'line',
@@ -535,7 +536,6 @@ function rviz(){
     }
   });
   
-  // Bar chart
   const ctx2=document.getElementById('vizBarChart').getContext('2d');
   vizChartBar=new Chart(ctx2,{
     type:'bar',
