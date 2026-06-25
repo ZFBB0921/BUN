@@ -12,13 +12,18 @@ let db=null,uid=null,syncReady=false,unsub=null;
 const STORAGE_KEY = 'benyin_backup';
 
 const DEFAULT_ACCOUNTS = [
-  { id:'acc-001', name:'本殷', type:'Vlog/氛围感', posting:'odd', postDays:[1,3,5,7,9,11,13,15,17,19,21,23,25,27,29,31], platforms:['抖音','小红书','B站'] },
-  { id:'acc-002', name:'BUNIN本殷', type:'好物种草', posting:'even', postDays:[2,4,6,8,10,12,14,16,18,20,22,24,26,28,30], platforms:['抖音','小红书','B站','闲鱼','电商店铺'] },
-  { id:'acc-003', name:'殷然说', type:'感悟分享', posting:'odd', postDays:[1,3,5,7,9,11,13,15,17,19,21,23,25,27,29,31], platforms:['抖音','小宇宙'] },
-  { id:'acc-004', name:'本殷食叙', type:'美食教程', posting:'even', postDays:[2,4,6,8,10,12,14,16,18,20,22,24,26,28,30], platforms:['抖音','小红书','B站'] },
-  { id:'acc-005', name:'本殷视觉', type:'拍摄展示', posting:'odd', postDays:[1,3,5,7,9,11,13,15,17,19,21,23,25,27,29,31], platforms:['抖音','闲鱼'] },
-  { id:'acc-006', name:'本殷伴行', type:'服务监督', posting:'even', postDays:[2,4,6,8,10,12,14,16,18,20,22,24,26,28,30], platforms:['闲鱼'] }
+  { id:'acc-001', name:'本殷', type:'Vlog/氛围感', interval:2, platforms:['抖音','小红书','B站'] },
+  { id:'acc-002', name:'BUNIN本殷', type:'好物种草', interval:3, platforms:['抖音','小红书','B站','闲鱼','电商店铺'] },
+  { id:'acc-003', name:'殷然说', type:'感悟分享', interval:3, platforms:['抖音','小宇宙'] },
+  { id:'acc-004', name:'本殷食叙', type:'美食教程', interval:2, platforms:['抖音','小红书','B站'] },
+  { id:'acc-005', name:'本殷视觉', type:'拍摄展示', interval:3, platforms:['抖音','闲鱼'] },
+  { id:'acc-006', name:'本殷伴行', type:'服务监督', interval:5, platforms:['闲鱼'] }
 ];
+function postDaysFromInterval(interval){
+  var days=[];
+  for(var d=1;d<=31;d++){if((d-1)%interval===0)days.push(d);}
+  return days;
+}
 var ACCOUNTS = (function(){
   try{var s=localStorage.getItem('customAccounts');if(s){var p=JSON.parse(s);if(Array.isArray(p)&&p.length)return p;}}catch(e){}
   return JSON.parse(JSON.stringify(DEFAULT_ACCOUNTS));
@@ -57,9 +62,9 @@ function defData(){
   const d={tasks:{},content:[],drafts:[],ideas:[]};
   for(let day=1;day<=31;day++){
     const dt='2026-07-'+String(day).padStart(2,'0');d.tasks[dt]={};
-    ACCOUNTS.forEach(a=>{if(a.postDays.includes(day))d.tasks[dt][a.id]={status:'pending',checked:false};});
+    ACCOUNTS.forEach(a=>{var pds=postDaysFromInterval(a.interval||2);if(pds.includes(day))d.tasks[dt][a.id]={status:'pending',checked:false};});
   }
-  ACCOUNTS.forEach(a=>{a.postDays.forEach(day=>{
+  ACCOUNTS.forEach(a=>{var pds=postDaysFromInterval(a.interval||2);pds.forEach(day=>{
     const dt='2026-07-'+String(day).padStart(2,'0');
     a.platforms.forEach(p=>{d.content.push({id:'c_'+a.id+'_'+day+'_'+p,accountId:a.id,accountName:a.name,platform:p,date:dt,topic:'',title:'',cover:'待制作',content:'',caption:'',status:'pending',data:{followers:0,likes:0,views:0},link:'',analysis:'',adjustment:'',avoid:''});});
   });});
@@ -152,7 +157,7 @@ function rd(){
     const isDefault=a.id.startsWith('acc-')&&['acc-001','acc-002','acc-003','acc-004','acc-005','acc-006'].includes(a.id);return '<div class="card acc-card card-shadow'+(deleteMode&&!isDefault?' acc-del-target':'')+'" '+(deleteMode&&!isDefault?'onclick="deleteAccount(\''+a.id+'\');"':'')+'><div class="acc-card-bar" style="background:'+cl.l+'"></div>'+(deleteMode&&!isDefault?'<div class="acc-del-overlay"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e74c3c" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg><span style="color:#e74c3c;font-weight:600;font-size:13px">删除</span></div>':'')+'<div class="acc-card-body">'+
       '<div class="acc-card-row"><div><div class="acc-card-name">'+a.name+'</div><div class="acc-card-plats">'+a.platforms.map(p=>'<span>'+p+'</span>').join('')+'</div></div>'+
       '<div class="circle-prog"><svg width="'+sz+'" height="'+sz+'"><circle cx="'+(sz/2)+'" cy="'+(sz/2)+'" r="'+rd+'" class="bg-c" stroke="'+cl.l+'" stroke-width="'+sw+'"/><circle cx="'+(sz/2)+'" cy="'+(sz/2)+'" r="'+rd+'" class="fg-c" stroke="'+cl.d+'" stroke-width="'+sw+'" stroke-dasharray="'+cir+'" stroke-dashoffset="'+off+'"/></svg><div class="pct" style="color:'+cl.d+'">'+pct+'%</div></div></div>'+
-      '<div class="acc-card-meta">本月 <strong>'+ad+'/'+ac.length+'</strong> &nbsp;|&nbsp; '+(a.posting==='odd'?'奇数日':'偶数日')+'发布</div>'+
+      '<div class="acc-card-meta">本月 <strong>'+ad+'/'+ac.length+'</strong> &nbsp;|&nbsp; '+(a.interval||2)+'天一更</div>'+
       '<div class="acc-card-foot">'+(isT?'<label class="check-wrap" onclick="tglChk(\''+a.id+'\')"><div class="check-box'+(ch?' on':'')+'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><span class="text-sm'+(ch?' text-muted':'')+'">'+(ch?'已完成':'今日打卡')+'</span></label>':'<span class="text-sm text-muted">今日无任务</span>')+
       '<button class="btn btn-sec btn-sm ml-auto" onclick="nav(\'ai\');">AI创作</button></div></div></div>';
   }).join('');
@@ -951,7 +956,7 @@ const ACC_PALETTE = [
 function openAddAccount(){
   document.getElementById('newAccName').value='';
   document.getElementById('newAccType').value='';
-  document.getElementById('newAccPosting').value='odd';
+  document.getElementById('newAccInterval').value='2';
   document.getElementById('newAccPlatforms').value='';
   document.getElementById('addAccountModal').classList.add('show');
 }
@@ -959,16 +964,13 @@ function closeAddAccount(){document.getElementById('addAccountModal').classList.
 function saveNewAccount(){
   const name=document.getElementById('newAccName').value.trim();
   const type=document.getElementById('newAccType').value.trim();
-  const posting=document.getElementById('newAccPosting').value;
+  const interval=parseInt(document.getElementById('newAccInterval').value)||2;
   const platformsRaw=document.getElementById('newAccPlatforms').value.trim();
   if(!name||!type||!platformsRaw){alert('请填写完整信息');return;}
   const platforms=platformsRaw.split(/[,，\s]+/).filter(Boolean);
   if(!platforms.length){alert('请至少输入一个平台');return;}
   const id='acc-'+Date.now().toString(36);
-  const postDays=posting==='odd'?
-    [1,3,5,7,9,11,13,15,17,19,21,23,25,27,29,31]:
-    [2,4,6,8,10,12,14,16,18,20,22,24,26,28,30];
-  const newAcc={id,name,type,posting,postDays,platforms};
+  const newAcc={id,name,type,interval:interval,platforms};
   ACCOUNTS.push(newAcc);
   // Pick a unique color
   const usedColors=Object.values(ACC_CLR).map(c=>c.d);
@@ -980,8 +982,9 @@ function saveNewAccount(){
     if(!PLATFORM_ACCOUNTS[p].includes(id))PLATFORM_ACCOUNTS[p].push(id);
   });
   // Generate tasks for new account
+  var pds=postDaysFromInterval(interval);
   for(let day=1;day<=31;day++){
-    if(!postDays.includes(day))continue;
+    if(!pds.includes(day))continue;
     const dt='2026-07-'+String(day).padStart(2,'0');
     if(!DATA.tasks[dt])DATA.tasks[dt]={};
     DATA.tasks[dt][id]={status:'pending',checked:false};
@@ -1095,7 +1098,7 @@ function renderPlatformOverview(){
         h+='<div class="plat-acc-item" style="border-left:3px solid '+cl.d+'">';
         h+='<div style="display:flex;justify-content:space-between;align-items:center">';
         h+='<div><div style="font-weight:600;font-size:13px">'+a.name+'</div>';
-        h+='<div style="font-size:11px;color:var(--muted)">'+a.type+' · '+(a.posting==='odd'?'奇数日':'偶数日')+'发布</div></div>';
+        h+='<div style="font-size:11px;color:var(--muted)">'+a.type+' · '+(a.interval||2)+'天一更</div></div>';
         if(!isDefaultAcc){
           h+='<button class="plat-del-btn" onclick="event.stopPropagation();deleteAccount(\''+a.id+'\');" title="删除账号"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg></button>';
         }
@@ -1139,7 +1142,7 @@ function openAddPlatform(){
 function openAddAccountForPlatform(pname){
   document.getElementById('newAccName').value='';
   document.getElementById('newAccType').value='';
-  document.getElementById('newAccPosting').value='odd';
+  document.getElementById('newAccInterval').value='2';
   document.getElementById('newAccPlatforms').value=pname;
   document.getElementById('addAccountModal').classList.add('show');
 }

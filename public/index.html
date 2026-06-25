@@ -45,7 +45,7 @@
 <!-- DASHBOARD -->
 <div class="page active" id="page-dashboard">
   <div class="stat-row" id="statCards"></div>
-  <div class="card card-shadow"><div class="card-header" style="display:flex;justify-content:space-between;align-items:center"><span>账号矩阵</span><div style="display:flex;gap:8px"><button class="btn btn-pri btn-sm" onclick="openAddAccount()" style="font-size:12px;padding:3px 10px">+ 新增账号</button><button class="btn btn-del-mode btn-sm" id="delModeBtn" onclick="toggleDeleteMode()" style="font-size:12px;padding:3px 10px">删除</button></div></div><div class="card-body"><div class="acc-grid" id="accCards"></div></div></div>
+  <div class="card card-shadow"><div class="card-header" style="display:flex;justify-content:space-between;align-items:center"><span>账号矩阵</span><button class="btn btn-del-mode btn-sm" id="delModeBtn" onclick="toggleDeleteMode()" style="font-size:12px;padding:3px 10px">删除</button></div><div class="card-body"><div class="acc-grid" id="accCards"></div></div></div>
   <div class="card card-shadow mt-16"><div class="card-header" style="display:flex;justify-content:space-between;align-items:center"><span>平台与账号</span><button class="btn btn-pri btn-sm" onclick="openAddPlatform()" style="font-size:12px;padding:3px 10px">+ 添加平台</button></div><div class="card-body" id="platformOverview"></div></div>
 </div>
 
@@ -153,7 +153,7 @@
   <h3>添加新账号</h3>
   <div class="form-grp"><label class="form-lbl">账号名称</label><input class="form-inp" id="newAccName" placeholder="例如：新账号名"></div>
   <div class="form-grp"><label class="form-lbl">账号类型</label><input class="form-inp" id="newAccType" placeholder="例如：Vlog/美食"></div>
-  <div class="form-grp"><label class="form-lbl">发布频率</label><select class="form-sel" id="newAccPosting"><option value="odd">奇数日发布</option><option value="even">偶数日发布</option></select></div>
+  <div class="form-grp"><label class="form-lbl">发布频率（几天一更）</label><input class="form-inp" type="number" id="newAccInterval" value="2" min="1" max="30" style="width:100px"></div>
   <div class="form-grp"><label class="form-lbl">关联平台（用逗号或空格分隔）</label><input class="form-inp" id="newAccPlatforms" placeholder="例如：抖音 小红书 B站"></div>
   <div class="flex mt-16" style="justify-content:flex-end;gap:8px">
     <button class="btn btn-sec" onclick="closeAddAccount()">取消</button>
