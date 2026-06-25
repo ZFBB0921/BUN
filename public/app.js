@@ -104,7 +104,7 @@ function ld(){try{const r=localStorage.getItem(STORAGE_KEY);if(r){const p=JSON.p
   else if(curView==='tracking')rt();else if(curView==='ideas')ri();
 }
 let DATA={tasks:{},content:[],drafts:[],ideas:[],analytics:[],platformUrls:[]},curView='dashboard',curAcc=ACCOUNTS[0].id,editCid=null,editIid=null,calY=2026,calM=7,calSel=null,draftSelId=null;
-let ctFilterPlatform='',ctFilterAccount='',ctDateFrom='',ctDateTo='',wkFilter='',alPage=0,ctPage=0;
+let ctFilterPlatform='',ctFilterAccount='',ctDateFrom='',ctDateTo='',wkFilter='',alPage=0,ctPage=0,deleteMode=false;
 let aiApiKey=localStorage.getItem('deepseek_key')||'';
 let aiStep=0,aiPlatform=null,aiAccount=null,aiTopic='',aiTitles=[],aiSelTitle=-1,aiContents=[],aiSelContent=-1;
 
@@ -139,12 +139,12 @@ function rd(){
     const ad=ac.filter(c=>c.status==='done').length;const pct=ac.length?Math.round(ad/ac.length*100):0;
     const sz=68,sw=5,rd=(sz-sw)/2,cir=2*Math.PI*rd,off=cir-(pct/100)*cir;
     const tk=DATA.tasks[td]&&DATA.tasks[td][a.id];const isT=!!tk,ch=tk?tk.checked:false;
-    return '<div class="card acc-card card-shadow"><div class="acc-card-bar" style="background:'+cl.l+'"></div><div class="acc-card-body">'+
+    const isDefault=a.id.startsWith('acc-')&&['acc-001','acc-002','acc-003','acc-004','acc-005','acc-006'].includes(a.id);return '<div class="card acc-card card-shadow'+(deleteMode&&!isDefault?' acc-del-target':'')+'" '+(deleteMode&&!isDefault?'onclick="deleteAccount(\''+a.id+'\');"':'')+'><div class="acc-card-bar" style="background:'+cl.l+'"></div>'+(deleteMode&&!isDefault?'<div class="acc-del-overlay"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e74c3c" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg><span style="color:#e74c3c;font-weight:600;font-size:13px">删除</span></div>':'')+'<div class="acc-card-body">'+
       '<div class="acc-card-row"><div><div class="acc-card-name">'+a.name+'</div><div class="acc-card-plats">'+a.platforms.map(p=>'<span>'+p+'</span>').join('')+'</div></div>'+
       '<div class="circle-prog"><svg width="'+sz+'" height="'+sz+'"><circle cx="'+(sz/2)+'" cy="'+(sz/2)+'" r="'+rd+'" class="bg-c" stroke="'+cl.l+'" stroke-width="'+sw+'"/><circle cx="'+(sz/2)+'" cy="'+(sz/2)+'" r="'+rd+'" class="fg-c" stroke="'+cl.d+'" stroke-width="'+sw+'" stroke-dasharray="'+cir+'" stroke-dashoffset="'+off+'"/></svg><div class="pct" style="color:'+cl.d+'">'+pct+'%</div></div></div>'+
       '<div class="acc-card-meta">本月 <strong>'+ad+'/'+ac.length+'</strong> &nbsp;|&nbsp; '+(a.posting==='odd'?'奇数日':'偶数日')+'发布</div>'+
       '<div class="acc-card-foot">'+(isT?'<label class="check-wrap" onclick="tglChk(\''+a.id+'\')"><div class="check-box'+(ch?' on':'')+'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><span class="text-sm'+(ch?' text-muted':'')+'">'+(ch?'已完成':'今日打卡')+'</span></label>':'<span class="text-sm text-muted">今日无任务</span>')+
-      '<button class="btn btn-sec btn-sm ml-auto" onclick="nav(\'ai\');">AI创作</button>'+(a.id.startsWith('acc-')&&parseInt(a.id.split('-')[2])<=6?'':'<button class="acc-del-btn" onclick="deleteAccount(\''+a.id+'\');event.stopPropagation();" title="删除账号"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button>')+'</div></div></div>';
+      '<button class="btn btn-sec btn-sm ml-auto" onclick="nav(\'ai\');">AI创作</button></div></div></div>';
   }).join('');
 }
 function tglChk(id){
@@ -990,6 +990,21 @@ function saveNewAccount(){
   rd();rct();initQuickData(true);
 }
 
+// ── Toggle delete mode ──
+function toggleDeleteMode(){
+  deleteMode=!deleteMode;
+  const btn=document.getElementById('delModeBtn');
+  if(deleteMode){
+    btn.textContent='取消';
+    btn.style.background='#e74c3c';
+    btn.style.color='#fff';
+  }else{
+    btn.textContent='删除';
+    btn.style.background='';
+    btn.style.color='';
+  }
+  rd();
+}
 // ── Delete custom account ──
 function deleteAccount(id){
   const acc=ACCOUNTS.find(a=>a.id===id);
@@ -1009,6 +1024,9 @@ function deleteAccount(id){
   if(DATA.platformUrls)DATA.platformUrls=DATA.platformUrls.filter(u=>u.accountId!==id);
   if(DATA.ideas)DATA.ideas=DATA.ideas.filter(i=>i.account!==acc.name);
   saveAccounts();savePlatformAccounts();sv();
+  deleteMode=false;
+  const dmBtn=document.getElementById('delModeBtn');
+  if(dmBtn){dmBtn.textContent='删除';dmBtn.style.background='';dmBtn.style.color='';}
   alert('账号「'+acc.name+'」已删除');
   rd();rct();initQuickData(true);
 }
