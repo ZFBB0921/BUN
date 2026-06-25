@@ -23,7 +23,7 @@ var ACCOUNTS = (function(){
   try{var s=localStorage.getItem('customAccounts');if(s){var p=JSON.parse(s);if(Array.isArray(p)&&p.length)return p;}}catch(e){}
   return JSON.parse(JSON.stringify(DEFAULT_ACCOUNTS));
 })();
-function saveAccounts(){try{if(ACCOUNTS.length<6){console.error('ACCOUNTS too small:',ACCOUNTS.length);alert('警告：账号数据异常（仅剩'+ACCOUNTS.length+'个），已阻止保存以免数据丢失。请刷新页面恢复。');return;}var js=JSON.stringify(ACCOUNTS);localStorage.setItem('customAccounts',js);console.log('saveAccounts OK, count:',ACCOUNTS.length);}catch(e){console.error('saveAccounts failed:',e);alert('保存账号数据失败，请截图联系');}}
+function saveAccounts(){try{var js=JSON.stringify(ACCOUNTS);localStorage.setItem('customAccounts',js);console.log('saveAccounts OK, count:',ACCOUNTS.length);}catch(e){console.error('saveAccounts failed:',e);alert('保存账号数据失败，请截图联系');}}
 
 const ACC_CLR = {
   'acc-001':{d:'#D4A574',l:'#F5ECD7'},'acc-002':{d:'#B8956A',l:'#EDE0D0'},
@@ -1017,33 +1017,56 @@ function toggleDeleteMode(){
 }
 // ── Delete custom account ──
 function deleteAccount(id){
-  const acc=ACCOUNTS.find(a=>a.id===id);
-  if(!acc){alert('账号不存在');return;}
+  // Find the account
+  const idx=ACCOUNTS.findIndex(a=>a.id===id);
+  if(idx===-1){alert('账号不存在');return;}
+  const acc=ACCOUNTS[idx];
   const defaultIds=['acc-001','acc-002','acc-003','acc-004','acc-005','acc-006'];
   if(defaultIds.includes(id)){alert('默认账号不可删除');return;}
   if(!confirm('确定要删除账号「'+acc.name+'」吗？\n\n该操作会同时删除该账号下的所有内容和任务数据，不可恢复。'))return;
-  ACCOUNTS.splice(ACCOUNTS.findIndex(a=>a.id===id),1);
+  
+  console.log('Deleting account:',id,acc.name);
+  
+  // Remove ONLY this account from ACCOUNTS
+  ACCOUNTS.splice(idx,1);
+  console.log('ACCOUNTS after splice:',ACCOUNTS.map(function(a){return a.name;}).join(','));
+  
+  // Remove from ACC_CLR
   delete ACC_CLR[id];
-  Object.keys(PLATFORM_ACCOUNTS).forEach(p=>{
-    PLATFORM_ACCOUNTS[p]=PLATFORM_ACCOUNTS[p].filter(aid=>aid!==id);
+  
+  // Remove ONLY this account from PLATFORM_ACCOUNTS
+  Object.keys(PLATFORM_ACCOUNTS).forEach(function(p){
+    var arr=PLATFORM_ACCOUNTS[p];
+    if(!Array.isArray(arr)){console.warn('PLATFORM_ACCOUNTS['+p+'] is not array, fixing');PLATFORM_ACCOUNTS[p]=[];return;}
+    PLATFORM_ACCOUNTS[p]=arr.filter(function(aid){return aid!==id;});
     if(PLATFORM_ACCOUNTS[p].length===0)delete PLATFORM_ACCOUNTS[p];
   });
-  Object.keys(DATA.tasks).forEach(dt=>{delete DATA.tasks[dt][id];});
-  DATA.content=DATA.content.filter(c=>c.accountId!==id);
-  if(DATA.analytics)DATA.analytics=DATA.analytics.filter(a=>a.accountId!==id);
-  if(DATA.platformUrls)DATA.platformUrls=DATA.platformUrls.filter(u=>u.accountId!==id);
-  if(DATA.ideas)DATA.ideas=DATA.ideas.filter(i=>i.account!==acc.name);
-  try{
-    saveAccounts();savePlatformAccounts();sv();
-    deleteMode=false;
-    const dmBtn=document.getElementById('delModeBtn');
-    if(dmBtn){dmBtn.textContent='删除';dmBtn.style.background='';dmBtn.style.color='';}
-    alert('账号「'+acc.name+'」已删除');
-    rd();rct();initQuickData(true);
-  }catch(e){
-    console.error('deleteAccount error:',e);
-    alert('删除过程出错: '+e.message+'\n请刷新页面重试。如果数据丢失，请勿操作，联系修复。');
-  }
+  console.log('PLATFORM_ACCOUNTS keys after:',Object.keys(PLATFORM_ACCOUNTS).join(','));
+  
+  // Remove from DATA.tasks
+  Object.keys(DATA.tasks).forEach(function(dt){delete DATA.tasks[dt][id];});
+  // Remove from DATA.content
+  DATA.content=DATA.content.filter(function(c){return c.accountId!==id;});
+  // Remove from DATA.analytics
+  if(DATA.analytics)DATA.analytics=DATA.analytics.filter(function(a){return a.accountId!==id;});
+  // Remove from DATA.platformUrls
+  if(DATA.platformUrls)DATA.platformUrls=DATA.platformUrls.filter(function(u){return u.accountId!==id;});
+  // Remove from DATA.ideas
+  if(DATA.ideas)DATA.ideas=DATA.ideas.filter(function(i){return i.account!==acc.name;});
+  
+  // Save with safety check
+  if(ACCOUNTS.length<6){alert('错误：账号数据异常，已取消保存。请刷新页面。');return;}
+  saveAccounts();
+  savePlatformAccounts();
+  sv();
+  console.log('Delete complete, saved successfully');
+  
+  // Exit delete mode
+  deleteMode=false;
+  var dmBtn=document.getElementById('delModeBtn');
+  if(dmBtn){dmBtn.textContent='删除';dmBtn.style.background='';dmBtn.style.color='';}
+  alert('账号「'+acc.name+'」已删除');
+  rd();rct();initQuickData(true);
 }
 
 // ── Platform Overview ──
