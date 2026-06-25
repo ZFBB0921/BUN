@@ -453,7 +453,9 @@ function rviz(){
   const colors=['#3D3832','#C9A87C','#9BA88C','#9B8CB4','#D4956A','#7DA898'];
   
   // Line chart
-  if(vizChartLine) vizChartLine.destroy();
+  if(vizChartLine){vizChartLine.destroy();vizChartLine=null;}
+  if(vizChartBar){vizChartBar.destroy();vizChartBar=null;}
+  if(labels.length===0){return;}
   const ctx1=document.getElementById('vizLineChart').getContext('2d');
   vizChartLine=new Chart(ctx1,{
     type:'line',
@@ -482,7 +484,6 @@ function rviz(){
   });
   
   // Bar chart
-  if(vizChartBar) vizChartBar.destroy();
   const ctx2=document.getElementById('vizBarChart').getContext('2d');
   vizChartBar=new Chart(ctx2,{
     type:'bar',
