@@ -162,7 +162,7 @@ function rd(){
   var animClass=todayPct===100?' prog-done':'';
   document.getElementById('todayProgressBar').innerHTML=
     '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-weight:600;font-size:14px">今日进度</span><span style="font-size:13px;color:var(--muted)">'+todayMsg+'</span></div>'+
-    '<div class="prog-track"><div class="prog-fill'+animClass+'" style="width:'+todayPct+'%;background:'+barColor+'"></div></div>'+
+    '<div class="prog-bar"><div class="prog-fill'+animClass+'" style="width:'+todayPct+'%;background:'+barColor+'"></div></div>'+
     '<div style="text-align:right;font-size:20px;font-weight:700;margin-top:2px;color:'+barColor+'">'+todayPct+'%</div>';
   renderPlatformOverview();document.getElementById('accCards').innerHTML=ACCOUNTS.map(a=>{
     const cl=ACC_CLR[a.id];const ac=DATA.content.filter(c=>c.accountId===a.id);
